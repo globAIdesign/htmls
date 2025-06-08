@@ -111,6 +111,34 @@ app.post('/photos/:id/comments', async (req, res) => {
     }
 });
 
+app.delete('/photos/:photoId/comments/:commentId', async (req, res) => {
+    try {
+        const { photoId, commentId } = req.params;
+
+        // Fotoğrafı bul ve içindeki yorumu sil
+        const updatedPhoto = await Photo.findByIdAndUpdate(
+            photoId,
+            { 
+                $pull: { // $pull operatörü, bir diziden belirli bir koşula uyan elemanı siler
+                    comments: { _id: commentId } 
+                }
+            },
+            { new: true } // Bu, işlemden sonra belgenin güncellenmiş halini döndürür
+        );
+
+        if (!updatedPhoto) {
+            return res.status(404).send('Fotoğraf bulunamadı.');
+        }
+
+        res.status(200).json(updatedPhoto); // Başarı yanıtı olarak güncellenmiş fotoğrafı döndür
+
+    } catch (error) {
+        console.error("Yorum silinirken hata:", error);
+        res.status(500).send('Yorum silinirken bir sunucu hatası oluştu.');
+    }
+});
+
+
 // Sunucuyu Başlatma
 app.listen(PORT, () => {
     console.log(`Sunucu http://localhost:${PORT} adresinde çalışıyor.`);
