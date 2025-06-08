@@ -675,7 +675,7 @@
         <div class="modal-content">
             <div class="modal-image-container">
                 <div id="modalBg" class="modal-bg"></div>
-                <img id="modalImg" src="" alt="Büyük fotoğraf">
+                <img id="modalImg" src="" alt="">
                 <div class="shimmer-wrapper">
                     <div class="shimmer"></div>
                 </div>
@@ -734,7 +734,6 @@
 
             modalTitle.textContent = photo.title;
             modalDesc.textContent = photo.description;
-            modalImg.alt = photo.title;
 
             modalTags.innerHTML = '';
             if (photo.tags && photo.tags.length > 0) {
