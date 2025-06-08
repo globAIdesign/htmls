@@ -6,66 +6,58 @@ const multer = require('multer');
 const path = require('path');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cors = require('cors'); // CORS HATALARINI ÖNLEMEK İÇİN YENİ PAKET
+const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 3000; // Render'ın vereceği portu kullan
+const PORT = process.env.PORT || 3000;
 
-// --- YENİ: CORS Middleware'i ---
-// Farklı adreslerden (Netlify -> Render) gelen isteklere izin ver
-app.use(cors());
+// CORS Middleware'i
+app.use(cors()); // Şimdilik basit tutalım, tüm isteklere izin versin
 
-// --- YENİ: Cloudinary Yapılandırması ---
+// Cloudinary Yapılandırması
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// --- YENİ: Cloudinary Depolama Ayarı ---
-// server.js içinde
+// Cloudinary Depolama Ayarı
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'fotogaleri',
         allowed_formats: ['jpeg', 'png', 'jpg'],
-        // YENİ EKLENEN SATIR: Yüklenirken optimizasyon yap
         transformation: [{ width: 1920, height: 1080, crop: "limit", quality: "auto" }]
     }
 });
 const upload = multer({ storage: storage });
 
-// --- Veritabanı Bağlantısı (Aynı kaldı) ---
+// Veritabanı Bağlantısı
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("MongoDB'ye başarıyla bağlanıldı."))
     .catch(err => console.error('MongoDB bağlantı hatası:', err));
 
-// --- Veritabanı Modeli (Şema) (Aynı kaldı) ---
+// --- 1. DEĞİŞİKLİK: Veritabanı Modeli (Şema) Güncellendi ---
 const PhotoSchema = new mongoose.Schema({
     title: String,
     description: String,
-    // filename yerine path'i kullanacağız, Cloudinary bize tam URL verecek
-    path: String, // Resmin Cloudinary'deki URL'si
-    public_id: String, // Resmi silmek için gerekli olan Cloudinary ID'si
+    path: String,
+    public_id: String,
+    tags: [String], // Etiketleri bir metin dizisi olarak sakla
     createdAt: { type: Date, default: Date.now }
 });
 const Photo = mongoose.model('Photo', PhotoSchema);
 
-// --- Middleware Ayarları (Aynı kaldı) ---
+// Middleware Ayarları
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// --- API Rotaları (DEĞİŞTİ) ---
-
-// Ana sayfa için basit bir karşılama mesajı
+// --- API Rotaları ---
 app.get('/', (req, res) => {
     res.send('Galeri Backend Sunucusu Çalışıyor!');
 });
 
-// a) Fotoğraf yükleme rotası (DEĞİŞTİ)
-// server.js içinde
-
-// a) Fotoğraf yükleme rotası (DEĞİŞTİ)
+// --- 2. DEĞİŞİKLİK: Fotoğraf yükleme rotası güncellendi ---
 app.post('/upload', upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {
@@ -84,7 +76,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
             description: req.body.description,
             path: req.file.path,
             public_id: req.file.filename,
-            tags: tagsArray // YENİ: Diziye çevrilmiş etiketleri kaydet
+            tags: tagsArray // Diziye çevrilmiş etiketleri kaydet
         });
 
         await newPhoto.save();
@@ -95,7 +87,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     }
 });
 
-// b) Tüm fotoğrafları getirme rotası (Aynı kaldı)
+// Tüm fotoğrafları getirme rotası
 app.get('/photos', async (req, res) => {
     try {
         const photos = await Photo.find().sort({ createdAt: -1 });
@@ -105,7 +97,7 @@ app.get('/photos', async (req, res) => {
     }
 });
 
-// --- Sunucuyu Başlatma (Aynı kaldı) ---
+// Sunucuyu Başlatma
 app.listen(PORT, () => {
     console.log(`Sunucu http://localhost:${PORT} adresinde çalışıyor.`);
 });
