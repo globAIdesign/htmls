@@ -449,6 +449,132 @@
         .next {
             right: 15px;
         }
+
+        .view-toggle-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+.view-toggle-btn:hover, .view-toggle-btn.active {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+
+/* YENİ: Harita Görünümü Aktifken Galeri Konteynerinin Stili */
+.gallery-container.map-view {
+    position: relative;
+    height: 80vh;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    /* Ana arka plan */
+    background-color: #05080a; 
+    padding: 20px;
+    overflow: hidden;
+    /* YENİ: Katmanları tutmak için */
+    display: block; 
+}
+
+/* YENİ: Hareketli Grid Katmanı */
+.map-view::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 128, 0, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 128, 0, 0.2) 1px, transparent 1px);
+    background-size: 30px 30px;
+    animation: pan-grid 20s linear infinite;
+    z-index: 1;
+}
+
+@keyframes pan-grid {
+    0% { background-position: 0 0; }
+    100% { background-position: 300px 300px; }
+}
+
+/* YENİ: Radar Tarama Çizgisi Katmanı */
+.map-view::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%; /* Konteynerin iki katı */
+    height: 200%;
+    background: linear-gradient(to top, transparent, rgba(0, 255, 0, 0.2), transparent);
+    transform-origin: 0% 0%;
+    animation: radar-sweep 5s linear infinite;
+    z-index: 2;
+}
+
+@keyframes radar-sweep {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Harita elemanlarının bu katmanların üzerinde olmasını sağla */
+.map-view .gallery-item {
+    z-index: 10;
+    /* ... geri kalan stiller aynı ... */
+}
+
+/* YENİ: Harita Görünümündeki Galeri Öğelerinin Stili */
+.map-view .gallery-item {
+    position: absolute; /* JavaScript ile konumlandırılacak */
+    flex-basis: auto; /* Grid özelliklerini sıfırla */
+    width: 60px;  /* Daha küçük daireler */
+    height: 60px;
+    max-width: none;
+    border-radius: 50%; /* Daire şekli */
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 0 15px rgba(var(--primary-color), 0.5), 0 0 25px rgba(var(--primary-color), 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    z-index: 10;
+}
+
+.map-view .gallery-item:hover {
+    transform: scale(1.5); /* Üzerine gelince büyüt */
+    z-index: 50; /* Diğerlerinin üzerine çıksın */
+    box-shadow: 0 0 25px rgba(var(--primary-color), 0.8), 0 0 40px rgba(var(--primary-color), 0.5);
+}
+
+/* YENİ: Harita Görünümündeki Resimlerin Stili */
+.map-view .gallery-item img {
+    border-radius: 50%; /* Resim de daire olsun */
+    filter: saturate(0.5); /* Renkleri biraz solgunlaştır */
+    opacity: 1 !important; /* Her zaman görünür olsun */
+}
+
+/* YENİ: Hedef Bilgisi (Başlık) */
+.map-view .gallery-item::after {
+    content: attr(data-title); /* Başlığı al */
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0,0,0,0.8);
+    color: var(--primary-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.map-view .gallery-item:hover::after {
+    opacity: 1; /* Sadece üzerine gelince başlığı göster */
+}
     </style>
 </head>
 
@@ -458,6 +584,9 @@
         <h1 class="gallery-title">BÜRKÜT ATA</h1>
         <div class="header-actions">
             <input type="text" id="search-box" class="search-box" placeholder="Başlık, açıklama veya kişi ara...">
+              <button id="view-toggle-btn" class="view-toggle-btn" title="Görünümü Değiştir">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
             <button class="add-photo-btn">Fotoğraf Ekle +</button>
         </div>
     </header>
@@ -523,6 +652,7 @@
         const searchBox = document.getElementById('search-box');
         const modalImageContainer = document.querySelector('.modal-image-container');
         const modalBg = document.getElementById('modalBg');
+        const viewToggleBtn = document.getElementById('view-toggle-btn');
 
         const API_URL = 'https://html-vq8m.onrender.com';
         let allPhotos = [];
@@ -658,22 +788,92 @@
         }
 
         function createGalleryItem(foto, index) {
-            const galleryItem = document.createElement('div');
-            galleryItem.classList.add('gallery-item');
-            const img = new Image();
-            img.alt = foto.title;
-            img.loading = 'lazy';
-            const lowQualityUrl = foto.path.replace('/upload/', '/upload/w_50,q_auto,e_blur:1000,f_auto/');
-            const highQualityUrl = foto.path.replace('/upload/', '/upload/q_auto,f_auto,c_fill,w_500,h_500/');
-            img.src = lowQualityUrl;
-            img.onload = () => {
-                img.src = highQualityUrl;
-                img.classList.add('loaded');
-            };
-            galleryItem.appendChild(img);
-            galleryItem.addEventListener('click', () => openModal(index));
-            galeriElementi.appendChild(galleryItem);
-        }
+    const galleryItem = document.createElement('div');
+    galleryItem.classList.add('gallery-item');
+    galleryItem.setAttribute('data-title', foto.title); // YENİ: Başlığı data attribute olarak ekle
+
+    const img = new Image();
+    img.alt = foto.title;
+    img.loading = 'lazy';
+
+    const lowQualityUrl = foto.path.replace('/upload/', '/upload/w_50,q_auto,e_blur:1000,f_auto/');
+    const highQualityUrl = foto.path.replace('/upload/', '/upload/q_auto,f_auto,c_fill,w_500,h_500/');
+    
+    img.src = lowQualityUrl;
+    img.onload = () => {
+        img.src = highQualityUrl;
+        img.classList.add('loaded');
+    };
+
+    galleryItem.appendChild(img);
+    galleryItem.addEventListener('click', () => openModal(index));
+    galeriElementi.appendChild(galleryItem);
+}
+
+function toggleMapView() {
+    galeriElementi.classList.toggle('map-view');
+    viewToggleBtn.classList.toggle('active');
+
+    if (galeriElementi.classList.contains('map-view')) {
+        // --- Çakışma Önleyici Yerleştirme Algoritması ---
+        const items = Array.from(document.querySelectorAll('.gallery-item'));
+        const containerWidth = galeriElementi.clientWidth;
+        const containerHeight = galeriElementi.clientHeight;
+        const itemSize = 80; // Öğenin boyutu + etrafındaki boşluk (60px + 20px buffer)
+        const maxAttempts = 50; // Yeni bir pozisyon bulmak için maksimum deneme sayısı
+        let positions = []; // Yerleştirilmiş öğelerin konumlarını tutan dizi
+
+        items.forEach(item => {
+            let placed = false;
+            for (let i = 0; i < maxAttempts; i++) {
+                // Rastgele bir pozisyon öner
+                let newPos = {
+                    x: Math.random() * (containerWidth - itemSize) + (itemSize / 2),
+                    y: Math.random() * (containerHeight - itemSize) + (itemSize / 2)
+                };
+
+                // Bu pozisyonun diğerleriyle çakışıp çakışmadığını kontrol et
+                let overlaps = false;
+                for (let pos of positions) {
+                    const distance = Math.sqrt(Math.pow(pos.x - newPos.x, 2) + Math.pow(pos.y - newPos.y, 2));
+                    if (distance < itemSize) {
+                        overlaps = true;
+                        break;
+                    }
+                }
+
+                // Eğer çakışma yoksa, yerleştir ve döngüden çık
+                if (!overlaps) {
+                    item.style.left = `${newPos.x}px`;
+                    item.style.top = `${newPos.y}px`;
+                    positions.push(newPos);
+                    placed = true;
+                    break;
+                }
+            }
+            
+            // Eğer maksimum denemeye rağmen yerleştirilemediyse, yine de bir yere koy
+            if (!placed) {
+                let lastTryPos = {
+                    x: Math.random() * (containerWidth - itemSize),
+                    y: Math.random() * (containerHeight - itemSize)
+                };
+                item.style.left = `${lastTryPos.x}px`;
+                item.style.top = `${lastTryPos.y}px`;
+            }
+        });
+
+    } else {
+        // Izgara görünümüne dönülüyorsa, eklenen stilleri temizle
+        const items = document.querySelectorAll('.gallery-item');
+        items.forEach(item => {
+            item.style.left = '';
+            item.style.top = '';
+        });
+    }
+}
+
+viewToggleBtn.addEventListener('click', toggleMapView);
 
         window.addEventListener('load', () => {
             fetch(`${API_URL}/photos`)
