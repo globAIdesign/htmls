@@ -256,7 +256,6 @@
             object-fit: contain;
             position: relative;
             z-index: 2;
-            left: 10px;
             opacity: 0;
             transition: opacity 0.6s 0.1s ease-in-out;
         }
@@ -451,167 +450,206 @@
         }
 
         .view-toggle-btn {
-    background: none;
-    border: 1px solid var(--border-color);
-    color: var(--text-muted);
-    padding: 8px;
-    border-radius: 5px;
-    cursor: pointer;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .view-toggle-btn:hover,
+        .view-toggle-btn.active {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .gallery-container.map-view {
+            position: relative;
+            height: 80vh;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #05080a;
+            padding: 20px;
+            overflow: hidden;
+            display: block;
+        }
+
+        .map-view::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 128, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 128, 0, 0.2) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: pan-grid 20s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes pan-grid {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 300px 300px;
+            }
+        }
+
+        .map-view::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to top, transparent, rgba(0, 255, 0, 0.2), transparent);
+            transform-origin: 0% 0%;
+            animation: radar-sweep 5s linear infinite;
+            z-index: 2;
+        }
+
+        @keyframes radar-sweep {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .map-view .gallery-item {
+            position: absolute;
+            flex-basis: auto;
+            width: 60px;
+            height: 60px;
+            max-width: none;
+            border-radius: 50%;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 15px rgba(var(--primary-color), 0.5), 0 0 25px rgba(var(--primary-color), 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 10;
+        }
+
+        .map-view .gallery-item:hover {
+            transform: scale(1.5);
+            z-index: 50;
+            box-shadow: 0 0 25px rgba(var(--primary-color), 0.8), 0 0 40px rgba(var(--primary-color), 0.5);
+        }
+
+        .map-view .gallery-item img {
+            border-radius: 50%;
+            filter: saturate(0.5);
+            opacity: 1 !important;
+        }
+
+        .map-view .gallery-item::after {
+            content: attr(data-title);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: var(--primary-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .map-view .gallery-item:hover::after {
+            opacity: 1;
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom,
+                    rgba(18, 18, 18, 0) 0%,
+                    rgba(255, 255, 255, 0.1) 50%,
+                    rgba(18, 18, 18, 0) 100%);
+            background-size: 100% 4px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 9999;
+            animation: scan 7s linear infinite;
+        }
+
+        @keyframes scan {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 0 100vh;
+            }
+        }
+
+        .login-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: #000;
+    color: #0f0;
+    font-family: 'Courier New', Courier, monospace;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s;
+    z-index: 10000;
+    opacity: 1;
+    transition: opacity 1s ease-out;
 }
-.view-toggle-btn:hover, .view-toggle-btn.active {
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-}
-
-
-/* YENİ: Harita Görünümü Aktifken Galeri Konteynerinin Stili */
-.gallery-container.map-view {
-    position: relative;
-    height: 80vh;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    /* Ana arka plan */
-    background-color: #05080a; 
-    padding: 20px;
-    overflow: hidden;
-    /* YENİ: Katmanları tutmak için */
-    display: block; 
-}
-
-/* YENİ: Hareketli Grid Katmanı */
-.map-view::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        linear-gradient(rgba(0, 128, 0, 0.2) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 128, 0, 0.2) 1px, transparent 1px);
-    background-size: 30px 30px;
-    animation: pan-grid 20s linear infinite;
-    z-index: 1;
-}
-
-@keyframes pan-grid {
-    0% { background-position: 0 0; }
-    100% { background-position: 300px 300px; }
-}
-
-/* YENİ: Radar Tarama Çizgisi Katmanı */
-.map-view::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 200%; /* Konteynerin iki katı */
-    height: 200%;
-    background: linear-gradient(to top, transparent, rgba(0, 255, 0, 0.2), transparent);
-    transform-origin: 0% 0%;
-    animation: radar-sweep 5s linear infinite;
-    z-index: 2;
-}
-
-@keyframes radar-sweep {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Harita elemanlarının bu katmanların üzerinde olmasını sağla */
-.map-view .gallery-item {
-    z-index: 10;
-    /* ... geri kalan stiller aynı ... */
-}
-
-/* YENİ: Harita Görünümündeki Galeri Öğelerinin Stili */
-.map-view .gallery-item {
-    position: absolute; /* JavaScript ile konumlandırılacak */
-    flex-basis: auto; /* Grid özelliklerini sıfırla */
-    width: 60px;  /* Daha küçük daireler */
-    height: 60px;
-    max-width: none;
-    border-radius: 50%; /* Daire şekli */
-    border: 2px solid var(--primary-color);
-    box-shadow: 0 0 15px rgba(var(--primary-color), 0.5), 0 0 25px rgba(var(--primary-color), 0.3);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    z-index: 10;
-}
-
-.map-view .gallery-item:hover {
-    transform: scale(1.5); /* Üzerine gelince büyüt */
-    z-index: 50; /* Diğerlerinin üzerine çıksın */
-    box-shadow: 0 0 25px rgba(var(--primary-color), 0.8), 0 0 40px rgba(var(--primary-color), 0.5);
-}
-
-/* YENİ: Harita Görünümündeki Resimlerin Stili */
-.map-view .gallery-item img {
-    border-radius: 50%; /* Resim de daire olsun */
-    filter: saturate(0.5); /* Renkleri biraz solgunlaştır */
-    opacity: 1 !important; /* Her zaman görünür olsun */
-}
-
-/* YENİ: Hedef Bilgisi (Başlık) */
-.map-view .gallery-item::after {
-    content: attr(data-title); /* Başlığı al */
-    position: absolute;
-    bottom: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0,0,0,0.8);
-    color: var(--primary-color);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 10px;
-    white-space: nowrap;
+.login-overlay.hidden {
     opacity: 0;
-    transition: opacity 0.3s;
+    pointer-events: none;
 }
-
-.map-view .gallery-item:hover::after {
-    opacity: 1; /* Sadece üzerine gelince başlığı göster */
+.login-box p { margin: 5px 0; }
+.login-box p:last-child::after {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 1.2em;
+    background-color: #0f0;
+    animation: blink 1s step-end infinite;
 }
-
-.scanline {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        to bottom,
-        rgba(18, 18, 18, 0) 0%,
-        rgba(255, 255, 255, 0.1) 50%,
-        rgba(18, 18, 18, 0) 100%
-    );
-    background-size: 100% 4px; /* Çizgilerin kalınlığı */
-    opacity: 0.3;
-    pointer-events: none; /* Üzerine tıklanmasını engelle */
-    z-index: 9999;
-    animation: scan 7s linear infinite;
-}
-
-@keyframes scan {
-    0% { background-position: 0 0; }
-    100% { background-position: 0 100vh; }
-}
+@keyframes blink { 50% { opacity: 0; } }
     </style>
 </head>
 
 <body>
- <div class="scanline"></div>
+    
+    <div class="scanline"></div>
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-box">
+            <p>BÜRKÜT ATA SİSTEMİNE BAĞLANILIYOR...</p>
+            <p>KİMLİK DOĞRULAMA GEREKLİ</p>
+            <p>> ERİŞİM İÇİN BİR TUŞA BASIN_</p>
+        </div>
+    </div>
     <header class="header">
-
         <h1 class="gallery-title">BÜRKÜT ATA</h1>
         <div class="header-actions">
             <input type="text" id="search-box" class="search-box" placeholder="Başlık, açıklama veya kişi ara...">
-              <button id="view-toggle-btn" class="view-toggle-btn" title="Görünümü Değiştir">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-        </button>
+            <button id="view-toggle-btn" class="view-toggle-btn" title="Görünümü Değiştir">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
             <button class="add-photo-btn">Fotoğraf Ekle +</button>
         </div>
     </header>
@@ -637,7 +675,7 @@
         <div class="modal-content">
             <div class="modal-image-container">
                 <div id="modalBg" class="modal-bg"></div>
-                <img id="modalImg" src="" alt="">
+                <img id="modalImg" src="" alt="Büyük fotoğraf">
                 <div class="shimmer-wrapper">
                     <div class="shimmer"></div>
                 </div>
@@ -657,6 +695,8 @@
             </div>
         </div>
     </div>
+    
+    <audio id="sonar-ping-sound" src="sounds/ping.mp3" preload="auto"></audio>
 
     <script>
         // DOM Elementlerini Seçme ve Global Değişkenler
@@ -678,22 +718,23 @@
         const modalImageContainer = document.querySelector('.modal-image-container');
         const modalBg = document.getElementById('modalBg');
         const viewToggleBtn = document.getElementById('view-toggle-btn');
+        const sonarPingSound = document.getElementById('sonar-ping-sound');
 
         const API_URL = 'https://html-vq8m.onrender.com';
         let allPhotos = [];
         let currentPhotoIndex = 0;
+        
+        // DÜZELTME: Sonar Ping için sadece interval'i tutacak bir değişken yeterli.
+        let sonarInterval = null;
 
         function openModal(index) {
-            if (index < 0 || index >= allPhotos.length) {
-                return;
-            }
+            if (index < 0 || index >= allPhotos.length) return;
             currentPhotoIndex = index;
             const photo = allPhotos[index];
 
-            // 1. ANINDA YAPILACAKLAR: Metinleri güncelle ve her şeyi sıfırla
             modalTitle.textContent = photo.title;
             modalDesc.textContent = photo.description;
-        // Alt metnini de güncelleyelim
+            modalImg.alt = photo.title;
 
             modalTags.innerHTML = '';
             if (photo.tags && photo.tags.length > 0) {
@@ -703,9 +744,7 @@
                     tagElement.textContent = tag;
                     tagElement.addEventListener('click', () => {
                         searchBox.value = tag;
-                        searchBox.dispatchEvent(new Event('input', {
-                            bubbles: true
-                        }));
+                        searchBox.dispatchEvent(new Event('input', { bubbles: true }));
                         closeModal();
                         window.scrollTo(0, 0);
                     });
@@ -714,31 +753,25 @@
             }
             renderComments(photo.comments);
 
-            // Her şeyi başlangıç durumuna al (önceki resimden kalanları temizle)
             modalImageContainer.classList.add('loading');
             modalImg.src = '';
             modalBg.style.opacity = '0';
             modalBg.style.backgroundImage = 'none';
 
-            // 2. RESİM URL'LERİNİ TANIMLA
             const lowQualityUrl = photo.path.replace('/upload/', '/upload/w_100,q_20,e_blur:100,f_auto/');
             const highQualityUrl = photo.path.replace('/upload/', '/upload/q_auto,f_auto,w_1600/');
 
-            // 3. ÖNCE DÜŞÜK KALİTELİ RESMİ ÖN YÜKLE
             const lowQualityImg = new Image();
             lowQualityImg.src = lowQualityUrl;
 
             lowQualityImg.onload = () => {
-                // Yüklendiğinde, bulanık arka plan olarak ayarla ve göster.
                 modalBg.style.backgroundImage = `url('${lowQualityUrl}')`;
                 modalBg.style.opacity = '1';
 
-                // 4. ŞİMDİ YÜKSEK KALİTELİ RESMİ ÖN YÜKLE
                 const highQualityImg = new Image();
                 highQualityImg.src = highQualityUrl;
 
                 highQualityImg.onload = () => {
-                    // Yüklendiğinde, ana <img> etiketini güncelle ve yükleme modunu kapat.
                     modalImg.src = highQualityUrl;
                     modalImageContainer.classList.remove('loading');
                 };
@@ -752,7 +785,6 @@
                 modalImageContainer.classList.remove('loading');
             };
 
-            // 5. MODALI GÖSTER
             modal.style.display = 'flex';
         }
 
@@ -778,16 +810,8 @@
             comments.slice().reverse().forEach(comment => {
                 const commentElement = document.createElement('div');
                 commentElement.className = 'comment';
-                const commentDate = new Date(comment.createdAt).toLocaleString('tr-TR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                const deleteButtonHTML = myCommentKeys[comment._id] ?
-                    `<button class="delete-comment-btn" data-comment-id="${comment._id}">×</button>` :
-                    '';
+                const commentDate = new Date(comment.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const deleteButtonHTML = myCommentKeys[comment._id] ? `<button class="delete-comment-btn" data-comment-id="${comment._id}">×</button>` : '';
                 commentElement.innerHTML = `
                     ${deleteButtonHTML}
                     <div>
@@ -813,107 +837,111 @@
         }
 
         function createGalleryItem(foto, index) {
-    const galleryItem = document.createElement('div');
-    galleryItem.classList.add('gallery-item');
-    galleryItem.setAttribute('data-title', foto.title); // YENİ: Başlığı data attribute olarak ekle
+            const galleryItem = document.createElement('div');
+            galleryItem.classList.add('gallery-item');
+            galleryItem.setAttribute('data-title', foto.title);
 
-    const img = new Image();
-    img.alt = foto.title;
-    img.loading = 'lazy';
+            const img = new Image();
+            img.alt = foto.title;
+            img.loading = 'lazy';
 
-    const lowQualityUrl = foto.path.replace('/upload/', '/upload/w_50,q_auto,e_blur:1000,f_auto/');
-    const highQualityUrl = foto.path.replace('/upload/', '/upload/q_auto,f_auto,c_fill,w_500,h_500/');
-    
-    img.src = lowQualityUrl;
-    img.onload = () => {
-        img.src = highQualityUrl;
-        img.classList.add('loaded');
-    };
+            const lowQualityUrl = foto.path.replace('/upload/', '/upload/w_50,q_auto,e_blur:1000,f_auto/');
+            const highQualityUrl = foto.path.replace('/upload/', '/upload/q_auto,f_auto,c_fill,w_500,h_500/');
 
-    galleryItem.appendChild(img);
-    galleryItem.addEventListener('click', () => openModal(index));
-    galeriElementi.appendChild(galleryItem);
-}
+            img.src = lowQualityUrl;
+            img.onload = () => {
+                img.src = highQualityUrl;
+                img.classList.add('loaded');
+            };
 
-function toggleMapView() {
-    galeriElementi.classList.toggle('map-view');
-    viewToggleBtn.classList.toggle('active');
+            galleryItem.appendChild(img);
+            galleryItem.addEventListener('click', () => openModal(index));
+            galeriElementi.appendChild(galleryItem);
+        }
 
-    if (galeriElementi.classList.contains('map-view')) {
-        // --- Çakışma Önleyici Yerleştirme Algoritması ---
-        const items = Array.from(document.querySelectorAll('.gallery-item'));
-        const containerWidth = galeriElementi.clientWidth;
-        const containerHeight = galeriElementi.clientHeight;
-        const itemSize = 80; // Öğenin boyutu + etrafındaki boşluk (60px + 20px buffer)
-        const maxAttempts = 50; // Yeni bir pozisyon bulmak için maksimum deneme sayısı
-        let positions = []; // Yerleştirilmiş öğelerin konumlarını tutan dizi
+        function toggleMapView() {
+            galeriElementi.classList.toggle('map-view');
+            viewToggleBtn.classList.toggle('active');
 
-        items.forEach(item => {
-            let placed = false;
-            for (let i = 0; i < maxAttempts; i++) {
-                // Rastgele bir pozisyon öner
-                let newPos = {
-                    x: Math.random() * (containerWidth - itemSize) + (itemSize / 2),
-                    y: Math.random() * (containerHeight - itemSize) + (itemSize / 2)
-                };
+            if (galeriElementi.classList.contains('map-view')) {
+                // Konumlandırma algoritması
+                const items = Array.from(document.querySelectorAll('.gallery-item'));
+                const containerWidth = galeriElementi.clientWidth;
+                const containerHeight = galeriElementi.clientHeight;
+                const itemSize = 80;
+                const maxAttempts = 50;
+                let positions = [];
 
-                // Bu pozisyonun diğerleriyle çakışıp çakışmadığını kontrol et
-                let overlaps = false;
-                for (let pos of positions) {
-                    const distance = Math.sqrt(Math.pow(pos.x - newPos.x, 2) + Math.pow(pos.y - newPos.y, 2));
-                    if (distance < itemSize) {
-                        overlaps = true;
-                        break;
+                items.forEach(item => {
+                    let placed = false;
+                    for (let i = 0; i < maxAttempts; i++) {
+                        let newPos = { x: Math.random() * (containerWidth - itemSize) + (itemSize / 2), y: Math.random() * (containerHeight - itemSize) + (itemSize / 2) };
+                        let overlaps = false;
+                        for (let pos of positions) {
+                            const distance = Math.sqrt(Math.pow(pos.x - newPos.x, 2) + Math.pow(pos.y - newPos.y, 2));
+                            if (distance < itemSize) { overlaps = true; break; }
+                        }
+                        if (!overlaps) {
+                            item.style.left = `${newPos.x}px`;
+                            item.style.top = `${newPos.y}px`;
+                            positions.push(newPos);
+                            placed = true;
+                            break;
+                        }
                     }
+                    if (!placed) {
+                        let lastTryPos = { x: Math.random() * (containerWidth - itemSize), y: Math.random() * (containerHeight - itemSize) };
+                        item.style.left = `${lastTryPos.x}px`;
+                        item.style.top = `${lastTryPos.y}px`;
+                    }
+                });
+
+                // DÜZELTME: Periyodik sonar sesini BAŞLAT
+                if (!sonarInterval) {
+                    sonarInterval = setInterval(() => {
+                        sonarPingSound.currentTime = 0;
+                        sonarPingSound.play().catch(e => console.log("Kullanıcı etkileşimi olmadan ses çalınamadı."));
+                    }, 6500); // 8 saniyede bir çal
                 }
 
-                // Eğer çakışma yoksa, yerleştir ve döngüden çık
-                if (!overlaps) {
-                    item.style.left = `${newPos.x}px`;
-                    item.style.top = `${newPos.y}px`;
-                    positions.push(newPos);
-                    placed = true;
-                    break;
-                }
+            } else {
+                // Izgara görünümüne dönülüyorsa
+                const items = document.querySelectorAll('.gallery-item');
+                items.forEach(item => {
+                    item.style.left = '';
+                    item.style.top = '';
+                });
+
+                // DÜZELTME: Periyodik sonar sesini DURDUR
+                clearInterval(sonarInterval);
+                sonarInterval = null;
             }
-            
-            // Eğer maksimum denemeye rağmen yerleştirilemediyse, yine de bir yere koy
-            if (!placed) {
-                let lastTryPos = {
-                    x: Math.random() * (containerWidth - itemSize),
-                    y: Math.random() * (containerHeight - itemSize)
-                };
-                item.style.left = `${lastTryPos.x}px`;
-                item.style.top = `${lastTryPos.y}px`;
+        }
+
+        function applyHackerEffect(element) {
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*&^%$#@!";
+            let interval = null;
+            const originalText = element.innerText;
+            element.onmouseover = event => {
+                let iteration = 0;
+                clearInterval(interval);
+                interval = setInterval(() => {
+                    event.target.innerText = originalText.split("").map((letter, index) => {
+                        if (index < iteration) { return originalText[index]; }
+                        return letters[Math.floor(Math.random() * letters.length)]
+                    }).join("");
+                    if (iteration >= originalText.length) { clearInterval(interval); }
+                    iteration += 1 / 3;
+                }, 30);
             }
-        });
+        }
 
-    } else {
-        // Izgara görünümüne dönülüyorsa, eklenen stilleri temizle
-        const items = document.querySelectorAll('.gallery-item');
-        items.forEach(item => {
-            item.style.left = '';
-            item.style.top = '';
-        });
-    }
-}
-
-viewToggleBtn.addEventListener('click', toggleMapView);
-
+        // --- Olay Dinleyicileri ---
         window.addEventListener('load', () => {
             fetch(`${API_URL}/photos`)
-                .then(response => {
-                    if (!response.ok) throw new Error('Sunucu yanıt vermiyor.');
-                    return response.json();
-                })
-                .then(photos => {
-                    allPhotos = photos;
-                    renderGallery(allPhotos);
-                })
-                .catch(error => {
-                    console.error('Galeri yüklenirken hata:', error);
-                    galeriElementi.innerHTML = `<p style="color: red; grid-column: 1 / -1;">Galeri yüklenemedi.</p>`;
-                });
+                .then(response => { if (!response.ok) throw new Error('Sunucu yanıt vermiyor.'); return response.json(); })
+                .then(photos => { allPhotos = photos; renderGallery(allPhotos); })
+                .catch(error => { console.error('Galeri yüklenirken hata:', error); galeriElementi.innerHTML = `<p style="color: red; grid-column: 1 / -1;">Galeri yüklenemedi.</p>`; });
         });
 
         searchBox.addEventListener('input', (event) => {
@@ -934,15 +962,9 @@ viewToggleBtn.addEventListener('click', toggleMapView);
             submitButton.textContent = 'Yükleniyor...';
             submitButton.disabled = true;
             try {
-                const response = await fetch(`${API_URL}/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-                if (response.ok) {
-                    window.location.reload();
-                } else {
-                    throw new Error(await response.text());
-                }
+                const response = await fetch(`${API_URL}/upload`, { method: 'POST', body: formData });
+                if (response.ok) { window.location.reload(); }
+                else { throw new Error(await response.text()); }
             } catch (error) {
                 alert('Fotoğraf yüklenemedi: ' + error.message);
             } finally {
@@ -964,14 +986,8 @@ viewToggleBtn.addEventListener('click', toggleMapView);
             try {
                 const response = await fetch(`${API_URL}/photos/${currentPhoto._id}/comments`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username,
-                        text,
-                        deleteKey
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, text, deleteKey })
                 });
                 if (!response.ok) throw new Error(await response.text());
                 const updatedPhoto = await response.json();
@@ -1002,20 +1018,13 @@ viewToggleBtn.addEventListener('click', toggleMapView);
                 const currentPhoto = allPhotos[currentPhotoIndex];
                 const myCommentKeys = JSON.parse(localStorage.getItem('myCommentKeys')) || {};
                 const deleteKey = myCommentKeys[commentId];
-                if (!deleteKey) {
-                    alert('Bu yorumu silme yetkiniz yok.');
-                    return;
-                }
+                if (!deleteKey) { alert('Bu yorumu silme yetkiniz yok.'); return; }
                 if (!confirm('Bu yorumu silmek istediğinizden emin misiniz?')) return;
                 try {
                     const response = await fetch(`${API_URL}/photos/${currentPhoto._id}/comments/${commentId}`, {
                         method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            deleteKey
-                        })
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ deleteKey })
                     });
                     if (!response.ok) throw new Error(await response.text());
                     const updatedPhoto = await response.json();
@@ -1045,34 +1054,28 @@ viewToggleBtn.addEventListener('click', toggleMapView);
                 if (e.key === 'Escape') closeModal();
             }
         });
-        function applyHackerEffect(element) {
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*&^%$#@!";
-    let interval = null;
-    const originalText = element.innerText;
+        
+        // DÜZELTME: Fare hareketi olay dinleyicisi kaldırıldı.
+        // Olay dinleyicileri en sona taşındı.
+        viewToggleBtn.addEventListener('click', toggleMapView);
+        applyHackerEffect(document.querySelector('.gallery-title'));
 
-    element.onmouseover = event => {
-        let iteration = 0;
-        clearInterval(interval);
-        interval = setInterval(() => {
-            event.target.innerText = originalText.split("")
-                .map((letter, index) => {
-                    if (index < iteration) {
-                        return originalText[index];
-                    }
-                    return letters[Math.floor(Math.random() * letters.length)]
-                })
-                .join("");
+        const loginOverlay = document.getElementById('login-overlay');
+function grantAccess() {
+    if (!loginOverlay) return;
+    const loginBox = loginOverlay.querySelector('.login-box');
+    loginBox.innerHTML = "<p>ERİŞİM İZNİ VERİLDİ.</p><p>BÜRKÜT ATA SİSTEMİ YÜKLENİYOR...</p>";
+    
+    setTimeout(() => {
+        loginOverlay.classList.add('hidden');
+    }, 2000); // 2 saniye sonra siteyi göster
 
-            if (iteration >= originalText.length) {
-                clearInterval(interval);
-            }
-            iteration += 1 / 3;
-        }, 30);
-    }
+    // Olay dinleyicisini bir daha çalışmasın diye kaldır
+    window.removeEventListener('keydown', grantAccess);
+    window.removeEventListener('click', grantAccess);
 }
-
-// Efekti başlığa uygula
-applyHackerEffect(document.querySelector('.gallery-title'));
+window.addEventListener('keydown', grantAccess, { once: true });
+window.addEventListener('click', grantAccess, { once: true });
     </script>
 </body>
 
