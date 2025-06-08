@@ -33,73 +33,87 @@
         .gallery-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
         .gallery-item { background-color: var(--border-color); flex-basis: calc(20% - 15px); flex-grow: 1; max-width: calc(20% - 15px); cursor: pointer; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 8px; position: relative; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); transition: transform 0.3s ease; }
         .gallery-item:hover { transform: scale(1.05); z-index: 20; }
-        .gallery-item img { width: 100%;
-            height: 100%;
-            object-fit: cover;
-            /* Başlangıçta resmi şeffaf yap */
-            opacity: 0;
-            transition: opacity 1s ease-in-out; /* Yumuşak bir geçiş efekti */}
-            .gallery-item img.loaded {
-            opacity: 1; /* Resmi görünür yap */
-        }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s ease-in-out; }
+        .gallery-item img.loaded { opacity: 1; }
         .gallery-item:hover img { opacity: 0.4; }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); align-items: center; justify-content: center; }
         .modal-content { display: flex; flex-direction: row; position: relative; background-color: var(--light-bg); padding: 20px; border-radius: 8px; width: 90vw; max-width: 1400px; height: 90vh; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7); }
-        .modal-image-container { flex: 3; display: flex; align-items: center; justify-content: center; padding-right: 20px; }
-        .modal-image-container img { max-width: 100%; max-height: 100%; border-radius: 4px; object-fit: contain; }
+        
+        /* --- DÜZELTME: MODAL RESİM YÜKLEME STİLLERİ --- */
+        .modal-image-container {
+            flex: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-right: 20px;
+            position: relative;
+            overflow: hidden;
+            background-color: #000; /* Sondaki hatalı '}' karakteri kaldırıldı */
+        }
+        .modal-bg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(20px) brightness(0.7);
+            transform: scale(1.1);
+            opacity: 0;
+            transition: opacity 0.4s ease-in, filter 0.4s ease-in;
+        }
+        #modalImg {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 4px;
+            object-fit: contain;
+            position: relative;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.6s 0.1s ease-in-out;
+        }
+        .shimmer-wrapper {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 3;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .shimmer {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(100deg, rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 80%);
+            animation: shimmer-animation 2s infinite linear;
+        }
+        @keyframes shimmer-animation {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .modal-image-container.loading .shimmer-wrapper {
+            opacity: 1;
+        }
+        .modal-image-container:not(.loading) #modalImg {
+            opacity: 1;
+        }
+        .modal-image-container:not(.loading) .modal-bg,
+        .modal-image-container:not(.loading) .shimmer-wrapper {
+            opacity: 0;
+            filter: blur(0px) brightness(1); 
+        }
+        /* --- STİL DÜZELTMELERİ SONU --- */
+
         .modal-details-container { flex: 2; display: flex; flex-direction: column; overflow-y: hidden; }
         .modal-description { background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 5px; }
         .modal-description h1 { font-size: 24px; margin: 0 0 10px 0; color: var(--primary-color); }
         .modal-description p { margin: 0; }
         .modal-tags { margin-top: 10px; }
-
-        
-        /* 1. DEĞİŞİKLİK: Etiketlere tıklanabilir görünüm kazandırıldı */
-        .tag {
-            display: inline-block;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            cursor: pointer; /* Fare imlecini el işareti yap */
-            transition: background-color 0.2s;
-        }
-        .tag:hover {
-            background-color: #a10000; /* Üzerine gelince rengi koyulaştır */
-        }
-        
+        .tag { display: inline-block; background-color: var(--primary-color); color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; margin-right: 5px; margin-bottom: 5px; cursor: pointer; transition: background-color 0.2s; }
+        .tag:hover { background-color: #a10000; }
         .comments-section { flex-grow: 1; margin-top: 15px; overflow-y: auto; border-top: 1px solid var(--border-color); padding: 15px 5px 15px 0; }
-        .comment {
-            position: relative; /* Silme butonunu konumlandırmak için */
-            background-color: rgba(0,0,0,0.2);
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            word-wrap: break-word;
-        }
-        .delete-comment-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 18px;
-            line-height: 1;
-            padding: 5px;
-            opacity: 0.3;
-            transition: opacity 0.2s, color 0.2s;
-        }
-        .comment:hover .delete-comment-btn {
-            opacity: 1; /* Sadece yorumun üzerine gelince görünsün */
-        }
-        .delete-comment-btn:hover {
-            color: var(--primary-color);
-        }
+        .comment { position: relative; background-color: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin-bottom: 10px; word-wrap: break-word; }
+        .delete-comment-btn { position: absolute; top: 5px; right: 5px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 5px; opacity: 0.3; transition: opacity 0.2s, color 0.2s; }
+        .comment:hover .delete-comment-btn { opacity: 1; }
+        .delete-comment-btn:hover { color: var(--primary-color); }
         .comment-author { font-weight: bold; color: var(--primary-color); margin-right: 8px; }
         .comment-date { font-size: 11px; color: var(--text-muted); }
         .comment-text { margin-top: 5px; }
@@ -141,7 +155,11 @@
         <span class="modal-nav next" id="next-btn">›</span>
         <div class="modal-content">
             <div class="modal-image-container">
-                <img id="modalImg" src="" alt="Büyük fotoğraf">
+                <div id="modalBg" class="modal-bg"></div>
+                <img id="modalImg" src="" alt="">
+                <div class="shimmer-wrapper">
+                    <div class="shimmer"></div>
+                </div>
             </div>
             <div class="modal-details-container">
                 <div class="modal-description">
@@ -176,73 +194,108 @@
         const formContainer = document.querySelector('.form-container');
         const uploadForm = document.querySelector('form');
         const searchBox = document.getElementById('search-box');
+        const modalImageContainer = document.querySelector('.modal-image-container');
+        const modalBg = document.getElementById('modalBg');
 
         const API_URL = 'https://html-vq8m.onrender.com';
         let allPhotos = [];
         let currentPhotoIndex = 0;
 
-        // --- FONKSİYONLAR ---
-        
-        // 2. DEĞİŞİKLİK: openModal fonksiyonu güncellendi
+        // --- DÜZELTME: openModal FONKSİYONUNUN TAMAMI DEĞİŞTİRİLDİ ---
         function openModal(index) {
-            if (index < 0 || index >= allPhotos.length) return;
-            currentPhotoIndex = index;
-            const photo = allPhotos[index];
+    if (index < 0 || index >= allPhotos.length) return;
+    currentPhotoIndex = index;
+    const photo = allPhotos[index];
 
-            const highQualityUrl = photo.path.replace('/upload/', '/upload/q_auto,f_auto,w_1600/');
+    // 1. ANINDA YAPILACAKLAR: Metinleri güncelle ve her şeyi sıfırla
+    modalTitle.textContent = photo.title;
+    modalDesc.textContent = photo.description;
+    
+    modalTags.innerHTML = '';
+    if (photo.tags && photo.tags.length > 0) {
+        photo.tags.forEach(tag => {
+            const tagElement = document.createElement('span');
+            tagElement.className = 'tag';
+            tagElement.textContent = tag;
+            tagElement.addEventListener('click', () => {
+                searchBox.value = tag;
+                searchBox.dispatchEvent(new Event('input', { bubbles: true }));
+                closeModal();
+                window.scrollTo(0, 0);
+            });
+            modalTags.appendChild(tagElement);
+        });
+    }
+    renderComments(photo.comments);
+
+    // Her şeyi başlangıç durumuna al (önceki resimden kalanları temizle)
+    modalImageContainer.classList.add('loading');
+    modalImg.src = ''; 
+    // --- DÜZELTME: BU SATIR SİLİNDİ. SORUNUN KAYNAĞI BUYDU. ---
+    // modalImg.style.opacity = '0'; 
+    modalBg.style.opacity = '0';
+    modalBg.style.backgroundImage = 'none';
+
+    // 2. RESİM URL'LERİNİ TANIMLA
+    const lowQualityUrl = photo.path.replace('/upload/', '/upload/w_100,q_20,e_blur:100,f_auto/');
+    const highQualityUrl = photo.path.replace('/upload/', '/upload/q_auto,f_auto,w_1600/');
+
+    // 3. ÖNCE DÜŞÜK KALİTELİ RESMİ ÖN YÜKLE
+    const lowQualityImg = new Image();
+    lowQualityImg.src = lowQualityUrl;
+
+    lowQualityImg.onload = () => {
+        // Yüklendiğinde, bulanık arka plan olarak ayarla ve göster.
+        modalBg.style.backgroundImage = `url('${lowQualityUrl}')`;
+        modalBg.style.opacity = '1';
+
+        // 4. ŞİMDİ YÜKSEK KALİTELİ RESMİ ÖN YÜKLE
+        const highQualityImg = new Image();
+        highQualityImg.src = highQualityUrl;
+
+        highQualityImg.onload = () => {
+            // Yüklendiğinde, ana <img> etiketini güncelle ve yükleme modunu kapat.
             modalImg.src = highQualityUrl;
-            modalTitle.textContent = photo.title;
-            modalDesc.textContent = photo.description;
+            modalImageContainer.classList.remove('loading');
+        };
+        highQualityImg.onerror = () => {
+            console.error("Yüksek kaliteli resim yüklenemedi:", highQualityUrl);
+            modalImageContainer.classList.remove('loading');
+        };
+    };
+    lowQualityImg.onerror = () => {
+        console.error("Düşük kaliteli resim yüklenemedi:", lowQualityUrl);
+        modalImageContainer.classList.remove('loading');
+    };
 
-            modalTags.innerHTML = '';
-            if (photo.tags && photo.tags.length > 0) {
-                photo.tags.forEach(tag => {
-                    const tagElement = document.createElement('span');
-                    tagElement.className = 'tag';
-                    tagElement.textContent = tag;
-                    
-                    // YENİ: Her bir etikete tıklama olayı ekle
-                    tagElement.addEventListener('click', () => {
-                        searchBox.value = tag; // Arama kutusunu etiketin adıyla doldur
-                        // Arama kutusunun 'input' olayını manuel olarak tetikle
-                        searchBox.dispatchEvent(new Event('input', { bubbles: true }));
-                        closeModal(); // Modalı kapat
-                        window.scrollTo(0, 0); // Sayfanın en üstüne git
-                    });
+    // 5. MODALI GÖSTER
+    modal.style.display = 'flex';
+}
 
-                    modalTags.appendChild(tagElement);
-                });
-            }
-            
-            renderComments(photo.comments);
-            modal.style.display = 'flex';
-        }
-
-         function generateSecretKey(length = 16) {
+        function generateSecretKey(length = 16) {
             return [...Array(length)].map(() => Math.random().toString(36)[2]).join('');
         }
 
-        // Diğer tüm fonksiyonlar ve olay dinleyicileri olduğu gibi kalıyor
-        function renderGallery(photosToRender) { galeriElementi.innerHTML = ''; photosToRender.forEach((photo) => { const originalIndex = allPhotos.findIndex(p => p._id === photo._id); createGalleryItem(photo, originalIndex); }); }
+        function renderGallery(photosToRender) { 
+            galeriElementi.innerHTML = ''; 
+            photosToRender.forEach((photo) => { 
+                const originalIndex = allPhotos.findIndex(p => p._id === photo._id); 
+                createGalleryItem(photo, originalIndex); 
+            }); 
+        }
+
         function renderComments(comments = []) {
             commentsSection.innerHTML = '';
             if (comments.length === 0) {
                 commentsSection.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Henüz yorum yapılmamış.</p>';
                 return;
             }
-            
             const myCommentKeys = JSON.parse(localStorage.getItem('myCommentKeys')) || {};
-
             comments.slice().reverse().forEach(comment => {
                 const commentElement = document.createElement('div');
                 commentElement.className = 'comment';
                 const commentDate = new Date(comment.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                
-                const deleteButtonHTML = myCommentKeys[comment._id]
-                    ? `<button class="delete-comment-btn" data-comment-id="${comment._id}">×</button>`
-                    : '';
-
-                // --- İŞTE DÜZELTİLEN KISIM ---
+                const deleteButtonHTML = myCommentKeys[comment._id] ? `<button class="delete-comment-btn" data-comment-id="${comment._id}">×</button>` : '';
                 commentElement.innerHTML = `
                     ${deleteButtonHTML}
                     <div>
@@ -251,46 +304,36 @@
                     </div>
                     <p class="comment-text">${comment.text}</p>
                 `;
-                // -----------------------------
                 commentsSection.appendChild(commentElement);
             });
         }
 
+        function closeModal() { 
+            modal.style.display = 'none'; 
+        }
 
-       
+        function showNextPhoto() { 
+            openModal((currentPhotoIndex + 1) % allPhotos.length); 
+        }
 
+        function showPrevPhoto() { 
+            openModal((currentPhotoIndex - 1 + allPhotos.length) % allPhotos.length); 
+        }
 
-
-        function closeModal() { modal.style.display = 'none'; }
-        function showNextPhoto() { openModal((currentPhotoIndex + 1) % allPhotos.length); }
-        function showPrevPhoto() { openModal((currentPhotoIndex - 1 + allPhotos.length) % allPhotos.length); }
         function createGalleryItem(foto, index) {
             const galleryItem = document.createElement('div');
             galleryItem.classList.add('gallery-item');
-            
-            const img = new Image(); // Yeni bir resim nesnesi oluştur
+            const img = new Image();
             img.alt = foto.title;
-            // loading="lazy" hala önemli, tarayıcıya ipucu verir
-            img.loading = 'lazy'; 
-
-            // Cloudinary'nin en güçlü optimizasyonlarından birini kullanalım:
-            // lqip (Low Quality Image Placeholder) - Düşük Kaliteli Resim Yer Tutucusu
-            // Önce çok küçük, bulanık bir versiyonu yükleyeceğiz.
+            img.loading = 'lazy';
             const lowQualityUrl = foto.path.replace('/upload/', '/upload/w_50,q_auto,e_blur:1000,f_auto/');
             const highQualityUrl = foto.path.replace('/upload/', '/upload/q_auto,f_auto,c_fill,w_500,h_500/');
-
-            // Önce düşük kaliteli, bulanık resmi göster
             img.src = lowQualityUrl;
-            
-            // Yüksek kaliteli resim tamamen yüklendiğinde...
             img.onload = () => {
-                // ...kaynağını yüksek kaliteli URL ile değiştir ve 'loaded' class'ını ekle
                 img.src = highQualityUrl;
                 img.classList.add('loaded');
             };
-
-            galleryItem.appendChild(img); // Resim nesnesini galeri elemanına ekle
-
+            galleryItem.appendChild(img);
             galleryItem.addEventListener('click', () => openModal(index));
             galeriElementi.appendChild(galleryItem);
         }
@@ -302,38 +345,27 @@
             event.preventDefault();
             const currentPhoto = allPhotos[currentPhotoIndex];
             if (!currentPhoto) return;
-
             const username = commentForm.elements.username.value;
             const text = commentForm.elements.text.value;
-            // YENİ: Yorum göndermeden önce gizli bir anahtar oluştur
             const deleteKey = generateSecretKey();
-
             const submitButton = commentForm.querySelector('button');
             submitButton.disabled = true;
             submitButton.textContent = 'Gönderiliyor...';
-
             try {
                 const response = await fetch(`${API_URL}/photos/${currentPhoto._id}/comments`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    // YENİ: Anahtarı da sunucuya gönder
                     body: JSON.stringify({ username, text, deleteKey })
                 });
-
                 if (!response.ok) throw new Error(await response.text());
-                
                 const updatedPhoto = await response.json();
-                
-                // YENİ: Yorumu yaptıktan sonra, o yoruma ait anahtarı localStorage'a kaydet
                 const newComment = updatedPhoto.comments[updatedPhoto.comments.length - 1];
                 let myCommentKeys = JSON.parse(localStorage.getItem('myCommentKeys')) || {};
                 myCommentKeys[newComment._id] = deleteKey;
                 localStorage.setItem('myCommentKeys', JSON.stringify(myCommentKeys));
-                
                 allPhotos[currentPhotoIndex] = updatedPhoto;
                 renderComments(updatedPhoto.comments);
                 commentForm.reset();
-
             } catch (error) {
                 alert('Yorum eklenirken hata: ' + error.message);
             } finally {
@@ -341,51 +373,36 @@
                 submitButton.textContent = 'Yorumu Gönder';
             }
         });
-
         addPhotoBtn.addEventListener('click', () => { formContainer.classList.toggle('visible'); });
         closeBtn.addEventListener('click', closeModal);
         commentsSection.addEventListener('click', async (event) => {
             if (event.target.classList.contains('delete-comment-btn')) {
                 const commentId = event.target.dataset.commentId;
                 const currentPhoto = allPhotos[currentPhotoIndex];
-                
-                // YENİ: Silme anahtarını localStorage'dan al
                 const myCommentKeys = JSON.parse(localStorage.getItem('myCommentKeys')) || {};
                 const deleteKey = myCommentKeys[commentId];
-
                 if (!deleteKey) {
                     alert('Bu yorumu silme yetkiniz yok.');
                     return;
                 }
-                
                 if (!confirm('Bu yorumu silmek istediğinizden emin misiniz?')) return;
-
                 try {
                     const response = await fetch(`${API_URL}/photos/${currentPhoto._id}/comments/${commentId}`, {
                         method: 'DELETE',
                         headers: { 'Content-Type': 'application/json' },
-                        // YENİ: Silme anahtarını sunucuya gönder
                         body: JSON.stringify({ deleteKey })
                     });
-
                     if (!response.ok) throw new Error(await response.text());
-
                     const updatedPhoto = await response.json();
-                    
-                    // YENİ: Başarıyla silindikten sonra anahtarı da localStorage'dan sil
                     delete myCommentKeys[commentId];
                     localStorage.setItem('myCommentKeys', JSON.stringify(myCommentKeys));
-                    
                     allPhotos[currentPhotoIndex] = updatedPhoto;
                     renderComments(updatedPhoto.comments);
-
                 } catch (error) {
                     alert('Yorum silinirken bir hata oluştu: ' + error.message);
                 }
             }
         });
-
-
         nextBtn.addEventListener('click', showNextPhoto);
         prevBtn.addEventListener('click', showPrevPhoto);
         modal.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
