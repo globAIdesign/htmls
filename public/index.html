@@ -7,7 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-
     <style>
         :root {
             --primary-color: #d10000; --dark-bg: #121212; --light-bg: #1e1e1e;
@@ -37,68 +36,28 @@
         .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
         .gallery-item:hover img { opacity: 0.8; }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); align-items: center; justify-content: center; }
-        
-        /* 1. DEĞİŞİKLİK: Modal içeriği yan yana olacak şekilde güncellendi */
-        .modal-content {
-            display: flex;
-            flex-direction: row; /* İçerik yan yana: sol resim, sağ detaylar */
-            position: relative;
-            background-color: var(--light-bg);
-            padding: 20px;
-            border-radius: 8px;
-            width: 90vw;
-            max-width: 1400px; /* Geniş ekranlar için daha fazla yer */
-            height: 90vh;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
-        }
-        .modal-image-container {
-            flex: 3; /* Resim alanı daha geniş olsun */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding-right: 20px;
-        }
-        .modal-image-container img {
-            max-width: 100%;
-            max-height: 100%;
-            border-radius: 4px;
-            object-fit: contain;
-        }
-        .modal-details-container {
-            flex: 2; /* Detaylar alanı */
-            display: flex;
-            flex-direction: column;
-            overflow-y: hidden; /* Bu container scroll olmasın */
-        }
+        .modal-content { display: flex; flex-direction: row; position: relative; background-color: var(--light-bg); padding: 20px; border-radius: 8px; width: 90vw; max-width: 1400px; height: 90vh; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7); }
+        .modal-image-container { flex: 3; display: flex; align-items: center; justify-content: center; padding-right: 20px; }
+        .modal-image-container img { max-width: 100%; max-height: 100%; border-radius: 4px; object-fit: contain; }
+        .modal-details-container { flex: 2; display: flex; flex-direction: column; overflow-y: hidden; }
         .modal-description { background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 5px; }
         .modal-description h1 { font-size: 24px; margin: 0 0 10px 0; color: var(--primary-color); }
         .modal-description p { margin: 0; }
         .modal-tags { margin-top: 10px; }
         .tag { display: inline-block; background-color: var(--primary-color); color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; margin-right: 5px; margin-bottom: 5px; }
-        
-        /* YENİ: Yorumlar Bölümü Stilleri */
-        .comments-section {
-            flex-grow: 1; /* Kalan tüm boşluğu doldur */
-            margin-top: 15px;
-            overflow-y: auto; /* Yorumlar sığmazsa scroll çıksın */
-            border-top: 1px solid var(--border-color);
-            padding: 15px 5px 15px 0; /* Sağda scrollbar için boşluk */
-        }
-        .comment {
-            background-color: rgba(0,0,0,0.2);
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            word-wrap: break-word;
-        }
+        .comments-section { flex-grow: 1; margin-top: 15px; overflow-y: auto; border-top: 1px solid var(--border-color); padding: 15px 5px 15px 0; }
+        .comment { background-color: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin-bottom: 10px; word-wrap: break-word; }
         .comment-author { font-weight: bold; color: var(--primary-color); margin-right: 8px; }
         .comment-date { font-size: 11px; color: var(--text-muted); }
         .comment-text { margin-top: 5px; }
-        #comment-form {
-            margin-top: auto; /* Formu en alta iter */
-            padding-top: 15px;
-            border-top: 1px solid var(--border-color);
-        }
+        #comment-form { margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border-color); }
+        
+        /* YENİ: Beğeni Butonu Stilleri */
+        .like-section { display: flex; align-items: center; gap: 8px; margin-top: 15px; color: var(--text-muted); }
+        .like-btn { background: none; border: none; cursor: pointer; padding: 0; }
+        .like-btn svg { width: 24px; height: 24px; stroke: var(--text-color); stroke-width: 2; fill: none; transition: all 0.2s ease; }
+        .like-btn.liked svg { fill: var(--primary-color); stroke: var(--primary-color); }
+        .like-count { font-weight: bold; }
 
         .close-button { position: absolute; top: 10px; right: 15px; z-index: 1010; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; }
         .modal-nav { cursor: pointer; position: absolute; top: 50%; transform: translateY(-50%); font-size: 40px; color: rgba(255, 255, 255, 0.7); background-color: rgba(0, 0, 0, 0.3); padding: 0 15px; border-radius: 5px; user-select: none; transition: color 0.3s, background-color 0.3s; z-index: 1005; }
@@ -131,12 +90,10 @@
         <div id="gallery-container" class="gallery-container"></div>
     </div>
 
-    <!-- 2. DEĞİŞİKLİK: Modal'ın HTML yapısı güncellendi -->
     <div id="myModal" class="modal">
         <span class="close-button" id="close-btn">×</span>
         <span class="modal-nav prev" id="prev-btn">‹</span>
         <span class="modal-nav next" id="next-btn">›</span>
-        
         <div class="modal-content">
             <div class="modal-image-container">
                 <img id="modalImg" src="" alt="Büyük fotoğraf">
@@ -146,10 +103,15 @@
                     <h1 id="modalTitle"></h1>
                     <p id="modalDesc"></p>
                     <div id="modalTags" class="modal-tags"></div>
+                    <!-- YENİ: Beğeni Bölümü Eklendi -->
+                    <div class="like-section">
+                        <button class="like-btn" id="like-btn">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                        <span class="like-count" id="like-count">0</span>
+                    </div>
                 </div>
-                <div id="comments-section" class="comments-section">
-                    <!-- Yorumlar buraya JS ile eklenecek -->
-                </div>
+                <div id="comments-section" class="comments-section"></div>
                 <form id="comment-form">
                     <input type="text" name="username" placeholder="Kullanıcı Adınız" required>
                     <textarea name="text" placeholder="Yorumunuzu yazın..." rows="2" required></textarea>
@@ -159,7 +121,6 @@
         </div>
     </div>
 
-    <!-- 3. DEĞİŞİKLİK: Script bölümü güncellendi -->
     <script>
         // DOM Elementlerini Seçme
         const galeriElementi = document.getElementById('gallery-container');
@@ -170,6 +131,8 @@
         const modalTags = document.getElementById('modalTags');
         const commentsSection = document.getElementById('comments-section');
         const commentForm = document.getElementById('comment-form');
+        const likeBtn = document.getElementById('like-btn');
+        const likeCount = document.getElementById('like-count');
         const closeBtn = document.getElementById('close-btn');
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
@@ -184,7 +147,6 @@
         let currentPhotoIndex = 0;
 
         // --- FONKSİYONLAR ---
-
         function renderGallery(photosToRender) {
             galeriElementi.innerHTML = '';
             photosToRender.forEach((photo) => {
@@ -193,7 +155,6 @@
             });
         }
 
-        // YENİ: Yorumları ekrana çizen fonksiyon
         function renderComments(comments = []) {
             commentsSection.innerHTML = '';
             if (comments.length === 0) {
@@ -204,13 +165,7 @@
                 const commentElement = document.createElement('div');
                 commentElement.className = 'comment';
                 const commentDate = new Date(comment.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                commentElement.innerHTML = `
-                    <div>
-                        <span class="comment-author">${comment.username}</span>
-                        <span class="comment-date">${commentDate}</span>
-                    </div>
-                    <p class="comment-text">${comment.text}</p>
-                `;
+                commentElement.innerHTML = `<div><span class="comment-author">${comment.username}</span><span class="comment-date">${commentDate}</span></div><p class="comment-text">${comment.text}</p>`;
                 commentsSection.appendChild(commentElement);
             });
         }
@@ -235,6 +190,13 @@
             }
             
             renderComments(photo.comments);
+            
+            likeCount.textContent = photo.likes || 0;
+            // Not: Beğenilip beğenilmediği backend'den gelen bilgiye göre değil,
+            // kullanıcının o anki oturumunda ne yaptığına göre belirlenecek.
+            // Bu, IP kontrolüyle birleşince iyi çalışır.
+            // Daha güvenli bir yöntem için backend'den liked:true/false bilgisi de istenebilir.
+            likeBtn.classList.remove('liked'); // Şimdilik varsayılan olarak beğenilmemiş göster
             
             modal.style.display = 'flex';
         }
@@ -282,7 +244,6 @@
             } catch (error) { alert('Fotoğraf yüklenemedi: ' + error.message); } finally { submitButton.textContent = 'Sisteme Yükle'; submitButton.disabled = false; }
         });
 
-        // YENİ: Yorum formunu gönderince çalışacak olay
         commentForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const currentPhoto = allPhotos[currentPhotoIndex];
@@ -309,6 +270,29 @@
             } finally {
                 submitButton.disabled = false;
                 submitButton.textContent = 'Yorumu Gönder';
+            }
+        });
+
+        likeBtn.addEventListener('click', async () => {
+            const currentPhoto = allPhotos[currentPhotoIndex];
+            if (!currentPhoto) return;
+            likeBtn.disabled = true; // Tekrar tıklamayı önle
+
+            try {
+                const response = await fetch(`${API_URL}/photos/${currentPhoto._id}/like`, {
+                    method: 'POST'
+                });
+                if (!response.ok) { throw new Error(await response.text()); }
+                const updatedPhoto = await response.json();
+                allPhotos[currentPhotoIndex] = updatedPhoto;
+                likeCount.textContent = updatedPhoto.likes;
+                // Beğeni durumuna göre butonu güncelle
+                likeBtn.classList.toggle('liked');
+
+            } catch (error) {
+                alert('Beğeni sırasında bir hata oluştu: ' + error.message);
+            } finally {
+                likeBtn.disabled = false; // İşlem bitince butonu tekrar aktif et
             }
         });
         
