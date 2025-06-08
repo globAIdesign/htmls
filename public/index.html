@@ -218,6 +218,10 @@
             modal.style.display = 'flex';
         }
 
+         function generateSecretKey(length = 16) {
+            return [...Array(length)].map(() => Math.random().toString(36)[2]).join('');
+        }
+
         // Diğer tüm fonksiyonlar ve olay dinleyicileri olduğu gibi kalıyor
         function renderGallery(photosToRender) { galeriElementi.innerHTML = ''; photosToRender.forEach((photo) => { const originalIndex = allPhotos.findIndex(p => p._id === photo._id); createGalleryItem(photo, originalIndex); }); }
         function renderComments(comments = []) {
@@ -226,23 +230,36 @@
                 commentsSection.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Henüz yorum yapılmamış.</p>';
                 return;
             }
+            
+            const myCommentKeys = JSON.parse(localStorage.getItem('myCommentKeys')) || {};
+
             comments.slice().reverse().forEach(comment => {
                 const commentElement = document.createElement('div');
                 commentElement.className = 'comment';
                 const commentDate = new Date(comment.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 
-                // YENİ: Silme butonu HTML'e eklendi
+                const deleteButtonHTML = myCommentKeys[comment._id]
+                    ? `<button class="delete-comment-btn" data-comment-id="${comment._id}">×</button>`
+                    : '';
+
+                // --- İŞTE DÜZELTİLEN KISIM ---
                 commentElement.innerHTML = `
-                    <button class="delete-comment-btn" data-comment-id="${comment._id}">×</button>
+                    ${deleteButtonHTML}
                     <div>
                         <span class="comment-author">${comment.username}</span>
                         <span class="comment-date">${commentDate}</span>
                     </div>
                     <p class="comment-text">${comment.text}</p>
                 `;
+                // -----------------------------
                 commentsSection.appendChild(commentElement);
             });
         }
+
+
+       
+
+
 
         function closeModal() { modal.style.display = 'none'; }
         function showNextPhoto() { openModal((currentPhotoIndex + 1) % allPhotos.length); }
@@ -281,31 +298,84 @@
         window.addEventListener('load', () => { fetch(`${API_URL}/photos`).then(response => { if (!response.ok) throw new Error('Sunucu yanıt vermiyor.'); return response.json(); }).then(photos => { allPhotos = photos; renderGallery(allPhotos); }).catch(error => { console.error('Galeri yüklenirken hata:', error); galeriElementi.innerHTML = `<p style="color: red; grid-column: 1 / -1;">Galeri yüklenemedi.</p>`; }); });
         searchBox.addEventListener('input', (event) => { const searchTerm = event.target.value.toLowerCase(); const filteredPhotos = allPhotos.filter(photo => { const titleMatch = photo.title.toLowerCase().includes(searchTerm); const descriptionMatch = photo.description.toLowerCase().includes(searchTerm); const tagsMatch = photo.tags && photo.tags.some(tag => tag.toLowerCase().includes(searchTerm)); return titleMatch || descriptionMatch || tagsMatch; }); renderGallery(filteredPhotos); });
         uploadForm.addEventListener('submit', async (event) => { event.preventDefault(); const formData = new FormData(uploadForm); const submitButton = uploadForm.querySelector('button'); submitButton.textContent = 'Yükleniyor...'; submitButton.disabled = true; try { const response = await fetch(`${API_URL}/upload`, { method: 'POST', body: formData }); if (response.ok) { window.location.reload(); } else { throw new Error(await response.text()); } } catch (error) { alert('Fotoğraf yüklenemedi: ' + error.message); } finally { submitButton.textContent = 'Sisteme Yükle'; submitButton.disabled = false; } });
-        commentForm.addEventListener('submit', async (event) => { event.preventDefault(); const currentPhoto = allPhotos[currentPhotoIndex]; if (!currentPhoto) return; const username = commentForm.elements.username.value; const text = commentForm.elements.text.value; const submitButton = commentForm.querySelector('button'); submitButton.disabled = true; submitButton.textContent = 'Gönderiliyor...'; try { const response = await fetch(`${API_URL}/photos/${currentPhoto._id}/comments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, text }) }); if (!response.ok) { throw new Error(await response.text()); } const updatedPhoto = await response.json(); allPhotos[currentPhotoIndex] = updatedPhoto; renderComments(updatedPhoto.comments); commentForm.reset(); } catch (error) { alert('Yorum eklenirken hata: ' + error.message); } finally { submitButton.disabled = false; submitButton.textContent = 'Yorumu Gönder'; } });
+        commentForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const currentPhoto = allPhotos[currentPhotoIndex];
+            if (!currentPhoto) return;
+
+            const username = commentForm.elements.username.value;
+            const text = commentForm.elements.text.value;
+            // YENİ: Yorum göndermeden önce gizli bir anahtar oluştur
+            const deleteKey = generateSecretKey();
+
+            const submitButton = commentForm.querySelector('button');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Gönderiliyor...';
+
+            try {
+                const response = await fetch(`${API_URL}/photos/${currentPhoto._id}/comments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // YENİ: Anahtarı da sunucuya gönder
+                    body: JSON.stringify({ username, text, deleteKey })
+                });
+
+                if (!response.ok) throw new Error(await response.text());
+                
+                const updatedPhoto = await response.json();
+                
+                // YENİ: Yorumu yaptıktan sonra, o yoruma ait anahtarı localStorage'a kaydet
+                const newComment = updatedPhoto.comments[updatedPhoto.comments.length - 1];
+                let myCommentKeys = JSON.parse(localStorage.getItem('myCommentKeys')) || {};
+                myCommentKeys[newComment._id] = deleteKey;
+                localStorage.setItem('myCommentKeys', JSON.stringify(myCommentKeys));
+                
+                allPhotos[currentPhotoIndex] = updatedPhoto;
+                renderComments(updatedPhoto.comments);
+                commentForm.reset();
+
+            } catch (error) {
+                alert('Yorum eklenirken hata: ' + error.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Yorumu Gönder';
+            }
+        });
+
         addPhotoBtn.addEventListener('click', () => { formContainer.classList.toggle('visible'); });
         closeBtn.addEventListener('click', closeModal);
         commentsSection.addEventListener('click', async (event) => {
-            // Eğer tıklanan element bir silme butonu ise
             if (event.target.classList.contains('delete-comment-btn')) {
                 const commentId = event.target.dataset.commentId;
                 const currentPhoto = allPhotos[currentPhotoIndex];
                 
-                // Onay al
-                if (!confirm('Bu yorumu silmek istediğinizden emin misiniz?')) {
+                // YENİ: Silme anahtarını localStorage'dan al
+                const myCommentKeys = JSON.parse(localStorage.getItem('myCommentKeys')) || {};
+                const deleteKey = myCommentKeys[commentId];
+
+                if (!deleteKey) {
+                    alert('Bu yorumu silme yetkiniz yok.');
                     return;
                 }
+                
+                if (!confirm('Bu yorumu silmek istediğinizden emin misiniz?')) return;
 
                 try {
                     const response = await fetch(`${API_URL}/photos/${currentPhoto._id}/comments/${commentId}`, {
-                        method: 'DELETE'
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        // YENİ: Silme anahtarını sunucuya gönder
+                        body: JSON.stringify({ deleteKey })
                     });
 
-                    if (!response.ok) {
-                        throw new Error(await response.text());
-                    }
+                    if (!response.ok) throw new Error(await response.text());
 
                     const updatedPhoto = await response.json();
-                    // Yerel veriyi ve arayüzü güncelle
+                    
+                    // YENİ: Başarıyla silindikten sonra anahtarı da localStorage'dan sil
+                    delete myCommentKeys[commentId];
+                    localStorage.setItem('myCommentKeys', JSON.stringify(myCommentKeys));
+                    
                     allPhotos[currentPhotoIndex] = updatedPhoto;
                     renderComments(updatedPhoto.comments);
 
@@ -314,6 +384,7 @@
                 }
             }
         });
+
 
         nextBtn.addEventListener('click', showNextPhoto);
         prevBtn.addEventListener('click', showPrevPhoto);
