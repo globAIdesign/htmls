@@ -10,9 +10,19 @@ const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+// server.js içinde
 
 // CORS Middleware'i
-app.use(cors()); // Şimdilik basit tutalım, tüm isteklere izin versin
+// app.use(cors()); // Bu satırı silip yerine aşağıdakini ekle
+
+const corsOptions = {
+  origin: '*', // Herhangi bir kaynaktan gelen isteğe izin ver (veya 'https://senin-netlify-adresin.netlify.app' yapabilirsin)
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // İzin verilen HTTP metotları
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
 
 // Cloudinary Yapılandırması
 cloudinary.config({
