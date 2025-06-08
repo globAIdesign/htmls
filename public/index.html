@@ -3,50 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paylaşımlı Galeri</title>
+    <!-- Sayfa Başlığı Güncellendi -->
+    <title>Bürküt Ata | İHA Sistemleri Galerisi</title>
+    
+    <!-- YENİ: Google Fonts'tan modern bir font eklendi -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- TAMAMEN YENİLENMİŞ STİLLER -->
     <style>
-        /* Stil kodlarında değişiklik yok, hepsi aynı kalıyor */
-        body { font-family: Arial, Helvetica, sans-serif; background-color: #f4f4f4; margin: 0; }
-        .gallery-title { text-align: center; font-size: 50px; font-weight: bolder; margin: 20px 0; }
-        .form-container { max-width: 500px; margin: 20px auto 40px auto; padding: 20px; background-color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; }
-        .form-container h2 { text-align: center; margin-top: 0; }
+        :root {
+            --primary-color: #d10000; /* Teknolojik bir mavi */
+            --dark-bg: #121212;
+            --light-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --text-muted: #888;
+            --border-color: #333;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* YENİ: Header Alanı */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .gallery-title {
+            font-family: 'Orbitron', sans-serif; /* Teknolojik, fütüristik font */
+            font-size: 36px;
+            margin: 0;
+            color: var(--primary-color);
+            letter-spacing: 2px;
+        }
+
+        /* YENİ: Fotoğraf Ekle Butonu */
+        .add-photo-btn {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .add-photo-btn:hover {
+            background-color: #d10000;
+            transform: translateY(-2px);
+        }
+
+        /* YENİ: Formun animasyonlu açılması için stiller */
+        .form-container {
+            background-color: var(--light-bg);
+            border-radius: 8px;
+            padding: 30px;
+            margin: 20px auto;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            /* Başlangıçta gizli ve animasyon için ayarlar */
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.7s ease-in-out, padding 0.7s ease-in-out;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .form-container.visible {
+            max-height: 500px; /* Açıldığında alacağı maksimum yükseklik */
+            padding-top: 30px;
+            padding-bottom: 30px;
+        }
+        .form-container h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-family: 'Orbitron', sans-serif;
+        }
         form { display: flex; flex-direction: column; gap: 15px; }
-        form input, form textarea, form button { font-size: 16px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
-        form button { background-color: #007bff; color: white; font-weight: bold; border: none; cursor: pointer; transition: background-color 0.2s; }
-        form button:hover { background-color: #0056b3; }
-        .gallery-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
-        .gallery-item { cursor: pointer; width: 250px; height: 250px; overflow: hidden; border: 3px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s; }
-        .gallery-item:hover img { transform: scale(1.1); }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
-        .modal-content { display: flex; background-color: #fff; margin: auto; padding: 20px; max-width: 80%; max-height: 80%; gap: 20px; }
-        .modal-image { flex: 2; text-align: center; }
-        .modal-image img { max-width: 100%; max-height: 70vh; }
-        .modal-description { flex: 1; overflow-y: auto; }
-        .close-button { position: absolute; top: 20px; right: 35px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; }
+        form input, form textarea, form button {
+            font-size: 16px;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: #252525;
+            color: var(--text-color);
+        }
+        form input::placeholder, form textarea::placeholder { color: var(--text-muted); }
+        form button { background-color: var(--primary-color); font-weight: bold; cursor: pointer; transition: background-color 0.3s; }
+        form button:hover { background-color: #d10000; }
+        form button:disabled { background-color: #555; cursor: not-allowed; }
+
+        /* Galeri stilleri iyileştirildi */
+        .gallery-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .gallery-item {
+            cursor: pointer;
+            aspect-ratio: 1 / 1; /* Kare oranını koru */
+            overflow: hidden;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease;
+        }
+        .gallery-item:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
+        .gallery-item:hover img { opacity: 0.8; }
+        
+        /* Modal stilleri iyileştirildi */
+        .modal { display: none; /* ... aynı kaldı ... */ }
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background-color: var(--light-bg);
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 90vw;
+            max-height: 90vh;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+        }
+        .modal-image {
+            flex-grow: 1; /* Esnek büyüme */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .modal-image img {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 4px;
+        }
+        .modal-description {
+            background-color: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 15vh;
+            overflow-y: auto;
+        }
+        .modal-description h1 { font-size: 24px; margin: 0 0 10px 0; color: var(--primary-color); }
+        .modal-description p { margin: 0; }
+        
+        .close-button { z-index: 1010; /* ... aynı kaldı ... */ }
+
+        /* YENİ: Modal Navigasyon Okları */
+        .modal-nav {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 40px;
+            color: rgba(255, 255, 255, 0.7);
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 0 15px;
+            border-radius: 5px;
+            user-select: none;
+            transition: color 0.3s, background-color 0.3s;
+            z-index: 1005;
+        }
+        .modal-nav:hover {
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .prev { left: 15px; }
+        .next { right: 15px; }
+
     </style>
 </head>
 <body>
 
-    <p class="gallery-title">Galeri</p>
-    
-    <div class="form-container">
-        <h2>Yeni </h2>
-        <!-- 1. DEĞİŞİKLİK: Form etiketi sunucuya veri gönderecek şekilde düzeltildi -->
-        <form action="/upload" method="POST" enctype="multipart/form-data">
-            <!-- 'name' özellikleri eklendi -->
-            <input type="text" name="title" placeholder="Fotoğraf Başlığı" required>
-            <textarea name="description" placeholder="Açıklama" rows="3" required></textarea>
-            <input type="file" name="image" accept="image/*" required>
-            <button type="submit">Yükle</button>
-        </form>
+    <!-- YENİLENMİŞ HTML YAPISI -->
+    <header class="header">
+        <h1 class="gallery-title">BÜRKÜT ATA</h1>
+        <button class="add-photo-btn">Fotoğraf Ekle +</button>
+    </header>
+
+    <div class="container">
+        <div class="form-container">
+            <h2>Yeni İHA Görüntüsü Yükle</h2>
+            <form> <!-- action, method gibi özellikler JS ile yönetildiği için kaldırıldı -->
+                <input type="text" name="title" placeholder="Görüntü Başlığı / Model Adı" required>
+                <textarea name="description" placeholder="Açıklama / Teknik Detaylar" rows="3" required></textarea>
+                <input type="file" name="image" accept="image/*" required>
+                <button type="submit">Sisteme Yükle</button>
+            </form>
+        </div>
+
+        <div id="gallery-container" class="gallery-container">
+            <!-- Galeri buraya dinamik olarak yüklenecek -->
+        </div>
     </div>
 
-    <div id="gallery-container" class="gallery-container"></div>
-
-    <!-- Modal HTML yapısı aynı kaldı -->
+    <!-- YENİLENMİŞ MODAL YAPISI -->
     <div id="myModal" class="modal">
         <span class="close-button" id="close-btn">×</span>
+        <!-- YENİ: Navigasyon Okları Eklendi -->
+        <span class="modal-nav prev" id="prev-btn">‹</span>
+        <span class="modal-nav next" id="next-btn">›</span>
+        
         <div class="modal-content">
             <div class="modal-image">
                 <img id="modalImg" src="" alt="Büyük fotoğraf">
@@ -58,104 +231,137 @@
         </div>
     </div>
 
-    <!-- 2. DEĞİŞİKLİK: Script bölümü tamamen sunucu odaklı çalışacak şekilde yeniden yazıldı -->
+    <!-- TAMAMEN YENİLENMİŞ VE GELİŞTİRİLMİŞ SCRIPT -->
     <script>
-         <!-- public/index.html dosyasının sonundaki script bölümü -->
-
-        // HTML elementlerini seç (modal için gerekli olanlar)
+        // DOM Elementlerini Seçme
         const galeriElementi = document.getElementById('gallery-container');
         const modal = document.getElementById('myModal');
         const modalImg = document.getElementById('modalImg');
         const modalTitle = document.getElementById('modalTitle');
         const modalDesc = document.getElementById('modalDesc');
         const closeBtn = document.getElementById('close-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const addPhotoBtn = document.querySelector('.add-photo-btn');
+        const formContainer = document.querySelector('.form-container');
+        const uploadForm = document.querySelector('form');
 
-        // --- EN ÖNEMLİ SATIR ---
-        // Render'daki sunucunun tam adresini buraya yaz
-        const API_URL = 'https://html-vq8m.onrender.com'; // LÜTFEN BURAYI KENDİ RENDER URL'N İLE DEĞİŞTİR
+        // Global Değişkenler
+        const API_URL = 'https://html-vq8m.onrender.com'; // Kendi Render URL'niz
+        let allPhotos = []; // Sunucudan gelen tüm fotoğrafları saklayacak dizi
+        let currentPhotoIndex = 0; // Modal'da açık olan fotoğrafın indeksi
 
-        // Galeriye bir eleman ekleyen ve modal tıklama olayını bağlayan fonksiyon
-        function createGalleryItem(foto) {
-            const galleryItem = document.createElement('div');
-            galleryItem.classList.add('gallery-item');
-            const imageUrl = foto.path;
-const optimizedUrl = imageUrl.replace('/upload/', '/upload/q_auto,f_auto,w_500/');
-            galleryItem.innerHTML = `<img src="${foto.path}" alt="${foto.title}">`;
+        // --- FONKSİYONLAR ---
 
-            galleryItem.addEventListener('click', () => {
-                modal.style.display = 'flex'; 
-                modalImg.src = foto.path;
-                modalTitle.textContent = foto.title;
-                modalDesc.textContent = foto.description;
-            });
+        // Modal'ı belirli bir fotoğrafla açan fonksiyon
+        function openModal(index) {
+            if (index < 0 || index >= allPhotos.length) return;
             
-            galeriElementi.appendChild(galleryItem);
+            currentPhotoIndex = index;
+            const photo = allPhotos[index];
+            
+            // Büyük resmi gösterirken daha yüksek kaliteli versiyonunu isteyelim
+            const highQualityUrl = photo.path.replace('/upload/', '/upload/q_auto,f_auto,w_1600/');
+            modalImg.src = highQualityUrl;
+            
+            modalTitle.textContent = photo.title;
+            modalDesc.textContent = photo.description;
+            modal.style.display = 'flex';
         }
 
-        // Sayfa yüklendiğinde DOĞRU sunucudan fotoğrafları çek
-        window.onload = function() {
-            fetch(`${API_URL}/photos`) // API_URL kullanılıyor
+        // Modal'ı kapatan fonksiyon
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        // Sonraki fotoğrafı gösteren fonksiyon
+        function showNextPhoto() {
+            const nextIndex = (currentPhotoIndex + 1) % allPhotos.length;
+            openModal(nextIndex);
+        }
+
+        // Önceki fotoğrafı gösteren fonksiyon
+        function showPrevPhoto() {
+            const prevIndex = (currentPhotoIndex - 1 + allPhotos.length) % allPhotos.length;
+            openModal(prevIndex);
+        }
+
+        // Galeriye bir eleman ekleyen fonksiyon
+        function createGalleryItem(foto, index) {
+            const galleryItem = document.createElement('div');
+            galleryItem.classList.add('gallery-item');
+            
+            // Küçük resimler için optimize edilmiş URL kullanıyoruz
+            const optimizedUrl = foto.path.replace('/upload/', '/upload/q_auto,f_auto,c_fill,w_500,h_500/');
+            galleryItem.innerHTML = `<img src="${optimizedUrl}" alt="${foto.title}" loading="lazy">`;
+
+            galleryItem.addEventListener('click', () => openModal(index));
+            galeriElementi.appendChild(galleryItem);
+        }
+        
+        // --- OLAY DİNLEYİCİLERİ (EVENT LISTENERS) ---
+
+        // Sayfa yüklendiğinde fotoğrafları çek
+        window.addEventListener('load', () => {
+            fetch(`${API_URL}/photos`)
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Sunucudan yanıt alınamadı: ' + response.statusText);
-                    }
+                    if (!response.ok) throw new Error('Sunucu yanıt vermiyor.');
                     return response.json();
                 })
                 .then(photos => {
+                    allPhotos = photos; // Gelen fotoğrafları global diziye ata
                     galeriElementi.innerHTML = '';
-                    photos.forEach(createGalleryItem);
+                    allPhotos.forEach(createGalleryItem);
                 })
                 .catch(error => {
-                    console.error('Galeriyi doldururken hata:', error);
-                    // Kullanıcıya bir hata mesajı gösterebiliriz
-                    galeriElementi.innerHTML = '<p style="color: red;">Galeri yüklenemedi. Lütfen daha sonra tekrar deneyin.</p>';
+                    console.error('Galeri yüklenirken hata:', error);
+                    galeriElementi.innerHTML = `<p style="color: red; grid-column: 1 / -1;">Galeri yüklenemedi.</p>`;
                 });
-        };
+        });
 
-        // Formu yakala ve isteği DOĞRU sunucuya gönder
-        const uploadForm = document.querySelector('form');
+        // Formu gönderince
         uploadForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-
             const formData = new FormData(uploadForm);
             const submitButton = uploadForm.querySelector('button');
             submitButton.textContent = 'Yükleniyor...';
             submitButton.disabled = true;
 
             try {
-                const response = await fetch(`${API_URL}/upload`, { // API_URL kullanılıyor
-                    method: 'POST',
-                    body: formData
-                });
-
+                const response = await fetch(`${API_URL}/upload`, { method: 'POST', body: formData });
                 if (response.ok) {
                     window.location.reload();
                 } else {
-                    const errorData = await response.text();
-                    alert('Fotoğraf yüklenirken bir hata oluştu: ' + errorData);
-                    submitButton.textContent = 'Yükle';
-                    submitButton.disabled = false;
+                    const errorText = await response.text();
+                    throw new Error(errorText);
                 }
             } catch (error) {
                 console.error('Yükleme hatası:', error);
-                alert('Sunucuya bağlanırken bir hata oluştu.');
-                submitButton.textContent = 'Yükle';
+                alert('Fotoğraf yüklenemedi: ' + error.message);
+            } finally {
+                submitButton.textContent = 'Sisteme Yükle';
                 submitButton.disabled = false;
             }
         });
-
-        // Modalı kapatma olayları
-        closeBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
+        
+        // "Fotoğraf Ekle" butonuna tıklayınca formu göster/gizle
+        addPhotoBtn.addEventListener('click', () => {
+            formContainer.classList.toggle('visible');
         });
 
-        window.addEventListener('click', (event) => {
-            if (event.target == modal) {
-                modal.style.display = 'none';
+        // Modal butonları
+        closeBtn.addEventListener('click', closeModal);
+        nextBtn.addEventListener('click', showNextPhoto);
+        prevBtn.addEventListener('click', showPrevPhoto);
+
+        // Klavye ile navigasyon
+        document.addEventListener('keydown', (e) => {
+            if (modal.style.display === 'flex') {
+                if (e.key === 'ArrowRight') showNextPhoto();
+                if (e.key === 'ArrowLeft') showPrevPhoto();
+                if (e.key === 'Escape') closeModal();
             }
         });
-    </script>
-
     </script>
 
 </body>
