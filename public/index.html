@@ -820,6 +820,34 @@
                 if (e.key === 'Escape') closeModal();
             }
         });
+        function applyHackerEffect(element) {
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*&^%$#@!";
+    let interval = null;
+    const originalText = element.innerText;
+
+    element.onmouseover = event => {
+        let iteration = 0;
+        clearInterval(interval);
+        interval = setInterval(() => {
+            event.target.innerText = originalText.split("")
+                .map((letter, index) => {
+                    if (index < iteration) {
+                        return originalText[index];
+                    }
+                    return letters[Math.floor(Math.random() * letters.length)]
+                })
+                .join("");
+
+            if (iteration >= originalText.length) {
+                clearInterval(interval);
+            }
+            iteration += 1 / 3;
+        }, 30);
+    }
+}
+
+// Efekti başlığa uygula
+applyHackerEffect(document.querySelector('.gallery-title'));
     </script>
 </body>
 
