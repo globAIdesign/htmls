@@ -19,10 +19,43 @@
         }
         body { font-family: 'Roboto', sans-serif; background-color: var(--dark-bg); color: var(--text-color); margin: 0; line-height: 1.6; }
         .container { max-width: 1800px; margin: 0 auto; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--border-color); }
+        
+        /* 1. DEĞİŞİKLİK: Header stilleri güncellendi */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            gap: 20px; /* Elemanlar arası boşluk */
+            flex-wrap: wrap; /* Küçük ekranlar için */
+        }
         .gallery-title { font-family: 'Orbitron', sans-serif; font-size: 36px; margin: 0; color: var(--primary-color); letter-spacing: 2px; }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        /* YENİ: Arama Kutusu Stilleri */
+        .search-box {
+            background-color: #252525;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 16px;
+            color: var(--text-color);
+            width: 250px;
+            transition: all 0.3s ease;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(var(--primary-color), 0.5);
+        }
         .add-photo-btn { background-color: var(--primary-color); color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background-color 0.3s, transform 0.2s; }
         .add-photo-btn:hover { background-color: #a10000; transform: translateY(-2px); }
+        
+        /* Geri kalan stiller aynı... */
         .form-container { background-color: var(--light-bg); border-radius: 8px; padding: 30px; margin: 20px auto; max-width: 500px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); max-height: 0; overflow: hidden; transition: max-height 0.7s ease-in-out, padding 0.7s ease-in-out; padding-top: 0; padding-bottom: 0; }
         .form-container.visible { max-height: 500px; padding-top: 30px; padding-bottom: 30px; }
         .form-container h2 { text-align: center; margin-top: 0; margin-bottom: 20px; font-family: 'Orbitron', sans-serif; }
@@ -32,57 +65,13 @@
         form button { background-color: var(--primary-color); font-weight: bold; cursor: pointer; transition: background-color 0.3s; }
         form button:hover { background-color: #a10000; }
         form button:disabled { background-color: #555; cursor: not-allowed; }
-        .gallery-container {
-            display: flex; /* Flexbox'a geri dönüyoruz, daha iyi kontrol için */
-            flex-wrap: wrap; /* Sığmazsa alt satıra at */
-            gap: 15px; /* Kutucuklar arası boşluk */
-            justify-content: center; /* Ortalamak için */
-        }
-        .gallery-item {
-            /* Her bir kutunun genişliğini hesapla:
-               %100 genişliğin 5'te 1'i, eksi aradaki boşluklar */
-            flex-basis: calc(20% - 15px);
-            flex-grow: 1; /* Boşlukları doldurmak için esnesin */
-            max-width: calc(20% - 15px); /* Genişliği sabitle */
-            
-            cursor: pointer;
-            aspect-ratio: 1 / 1;
-            overflow: hidden;
-            border-radius: 8px;
-            position: relative;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-            transition: transform 0.3s ease;
-        }
+        .gallery-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
+        .gallery-item { flex-basis: calc(20% - 15px); flex-grow: 1; max-width: calc(20% - 15px); cursor: pointer; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 8px; position: relative; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); transition: transform 0.3s ease; }
         .gallery-item:hover { transform: scale(1.05); z-index: 10; }
         .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
         .gallery-item:hover img { opacity: 0.8; }
-        
-        /* --- CSS DÜZELTMESİ: En Basit ve Garanti Yöntem --- */
-        .modal {
-            display: none; /* 1. Başlangıçta tamamen gizli */
-            position: fixed; /* 2. Sayfanın üzerinde yüzen bir katman yap */
-            z-index: 1000; /* 3. Diğer her şeyin üzerinde olmasını garantile */
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            /* 4. İçindeki içeriği ortalamak için flexbox kullan */
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            background-color: var(--light-bg);
-            padding: 20px;
-            border-radius: 8px;
-            max-width: 90vw;
-            max-height: 90vh;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
-        }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); align-items: center; justify-content: center; }
+        .modal-content { display: flex; flex-direction: column; position: relative; background-color: var(--light-bg); padding: 20px; border-radius: 8px; max-width: 90vw; max-height: 90vh; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7); }
         .modal-image { flex-grow: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
         .modal-image img { max-width: 100%; max-height: 70vh; border-radius: 4px; }
         .modal-description { background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 5px; max-height: 15vh; overflow-y: auto; }
@@ -99,7 +88,11 @@
 
     <header class="header">
         <h1 class="gallery-title">BÜRKÜT ATA</h1>
-        <button class="add-photo-btn">Fotoğraf Ekle +</button>
+        <!-- 2. DEĞİŞİKLİK: Header'a arama kutusu ve sarmalayıcı div eklendi -->
+        <div class="header-actions">
+            <input type="text" id="search-box" class="search-box" placeholder="Galeride Ara...">
+            <button class="add-photo-btn">Fotoğraf Ekle +</button>
+        </div>
     </header>
 
     <div class="container">
@@ -130,7 +123,9 @@
         </div>
     </div>
 
+    <!-- 3. DEĞİŞİKLİK: Script bölümü arama özelliğiyle güncellendi -->
     <script>
+        // DOM Elementlerini Seçme
         const galeriElementi = document.getElementById('gallery-container');
         const modal = document.getElementById('myModal');
         const modalImg = document.getElementById('modalImg');
@@ -142,13 +137,26 @@
         const addPhotoBtn = document.querySelector('.add-photo-btn');
         const formContainer = document.querySelector('.form-container');
         const uploadForm = document.querySelector('form');
+        const searchBox = document.getElementById('search-box'); // YENİ: Arama kutusu seçildi
 
+        // Global Değişkenler
         const API_URL = 'https://html-vq8m.onrender.com';
         let allPhotos = [];
         let currentPhotoIndex = 0;
 
-        /* --- JAVASCRIPT DÜZELTMESİ: En Basit Yöntem --- */
-        // Sadece style.display özelliğini değiştiriyoruz. Class ekleme/çıkarma yok.
+        // --- FONKSİYONLAR ---
+
+        // YENİ: Galeriyi filtreleyip yeniden çizen fonksiyon
+        function renderGallery(photosToRender) {
+            galeriElementi.innerHTML = ''; // Önce galeriyi temizle
+            photosToRender.forEach((photo, index) => {
+                // Not: Modalın doğru çalışması için orijinal indeksi bulmalıyız
+                const originalIndex = allPhotos.findIndex(p => p._id === photo._id);
+                createGalleryItem(photo, originalIndex);
+            });
+        }
+
+        // Modal'ı belirli bir fotoğrafla açan fonksiyon
         function openModal(index) {
             if (index < 0 || index >= allPhotos.length) return;
             currentPhotoIndex = index;
@@ -157,20 +165,21 @@
             modalImg.src = highQualityUrl;
             modalTitle.textContent = photo.title;
             modalDesc.textContent = photo.description;
-            modal.style.display = 'flex'; // Modalı görünür yap
+            modal.style.display = 'flex';
         }
 
         function closeModal() {
-            modal.style.display = 'none'; // Modalı gizle
+            modal.style.display = 'none';
         }
 
         function showNextPhoto() {
-            const nextIndex = (currentPhotoIndex + 1) % allPhotos.length;
+            // Filtrelenmiş listede değil, tüm fotoğraflar listesinde gezinmeliyiz
+            let nextIndex = (currentPhotoIndex + 1) % allPhotos.length;
             openModal(nextIndex);
         }
 
         function showPrevPhoto() {
-            const prevIndex = (currentPhotoIndex - 1 + allPhotos.length) % allPhotos.length;
+            let prevIndex = (currentPhotoIndex - 1 + allPhotos.length) % allPhotos.length;
             openModal(prevIndex);
         }
 
@@ -183,6 +192,9 @@
             galeriElementi.appendChild(galleryItem);
         }
         
+        // --- OLAY DİNLEYİCİLERİ (EVENT LISTENERS) ---
+
+        // Sayfa yüklendiğinde fotoğrafları çek
         window.addEventListener('load', () => {
             fetch(`${API_URL}/photos`)
                 .then(response => {
@@ -190,9 +202,8 @@
                     return response.json();
                 })
                 .then(photos => {
-                    allPhotos = photos;
-                    galeriElementi.innerHTML = '';
-                    allPhotos.forEach(createGalleryItem);
+                    allPhotos = photos; // Gelen fotoğrafları global diziye ata
+                    renderGallery(allPhotos); // Galeriyi ilk kez tüm fotoğraflarla çiz
                 })
                 .catch(error => {
                     console.error('Galeri yüklenirken hata:', error);
@@ -200,6 +211,22 @@
                 });
         });
 
+        // YENİ: Arama kutusuna her harf yazıldığında çalışacak olay
+        searchBox.addEventListener('input', (event) => {
+            const searchTerm = event.target.value.toLowerCase(); // Aranan terimi küçük harfe çevir
+            
+            // `allPhotos` dizisini filtrele
+            const filteredPhotos = allPhotos.filter(photo => {
+                const titleMatch = photo.title.toLowerCase().includes(searchTerm);
+                const descriptionMatch = photo.description.toLowerCase().includes(searchTerm);
+                return titleMatch || descriptionMatch; // Başlık VEYA açıklamada eşleşme varsa
+            });
+
+            // Galeriyi filtrelenmiş sonuçlarla yeniden çiz
+            renderGallery(filteredPhotos);
+        });
+
+        // Formu gönderince (aynı kaldı)
         uploadForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const formData = new FormData(uploadForm);
@@ -223,29 +250,23 @@
             }
         });
         
+        // Geri kalan olay dinleyicileri aynı kaldı...
         addPhotoBtn.addEventListener('click', () => {
             formContainer.classList.toggle('visible');
         });
-
         closeBtn.addEventListener('click', closeModal);
         nextBtn.addEventListener('click', showNextPhoto);
         prevBtn.addEventListener('click', showPrevPhoto);
-
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
         document.addEventListener('keydown', (e) => {
-            // Sadece modal görünürse klavye olaylarını dinle
             if (modal.style.display === 'flex') {
                 if (e.key === 'ArrowRight') showNextPhoto();
                 if (e.key === 'ArrowLeft') showPrevPhoto();
                 if (e.key === 'Escape') closeModal();
-            }
-        });
-                // ... diğer olay dinleyicilerinin altına ...
-
-        // YENİ: Modal'ın kendisine (arka plana) tıklanınca kapat
-        modal.addEventListener('click', (event) => {
-            // Eğer tıklanan element, modal'ın kendisi ise (içerik değil)
-            if (event.target === modal) {
-                closeModal();
             }
         });
     </script>
