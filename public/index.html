@@ -275,48 +275,63 @@
 
       likeBtn.addEventListener('click', async () => {
             const currentPhoto = allPhotos[currentPhotoIndex];
-            // Buton zaten kilitliyse veya fotoğraf bilgisi yoksa hiçbir şey yapma
-            if (!currentPhoto || likeBtn.disabled) {
-                return;
-            }
+            if (!currentPhoto || likeBtn.disabled) return;
 
-            // 1. İŞLEME BAŞLARKEN BUTONU KİLİTLE
             likeBtn.disabled = true;
 
             try {
-                // 2. SUNUCUYA İSTEĞİ GÖNDER VE CEVABI BEKLE
                 const response = await fetch(`${API_URL}/photos/${currentPhoto._id}/like`, {
                     method: 'POST'
                 });
 
                 if (!response.ok) {
-                    // Eğer sunucu bir hata döndürürse, hatayı fırlat
                     throw new Error(await response.text());
                 }
 
-                // 3. SUNUCUDAN GELEN GÜNCEL VERİYİ AL
                 const updatedPhoto = await response.json();
-
-                // 4. YEREL VERİYİ VE ARAYÜZÜ GÜNCELLE
-                // Sunucudan gelen en son ve en doğru bilgiyle her şeyi güncelle
                 allPhotos[currentPhotoIndex] = updatedPhoto;
                 likeCount.textContent = updatedPhoto.likes;
 
-                // Beğeni durumuna göre kalp ikonunu güncelle
-                // Bu sefer sunucudan gelen IP listesine göre değil,
-                // sadece sayının artıp azalmasına göre bir mantık kurabiliriz.
-                // VEYA en güvenlisi, beğeni durumunu da localStorage ile tutmaktır.
-                // Şimdilik en basit haliyle, class'ı toggle edelim.
-                likeBtn.classList.toggle('liked');
+                // Beğeni durumunu localStorage'a kaydet/sil
+                let likedPhotosInStorage = JSON.parse(localStorage.getItem('likedPhotos')) || [];
+                if (likedPhotosInStorage.includes(currentPhoto._id)) {
+                    // Beğeniyi geri aldıysak, localStorage'dan sil
+                    likedPhotosInStorage = likedPhotosInStorage.filter(id => id !== currentPhoto._id);
+                    likeBtn.classList.remove('liked');
+                } else {
+                    // Yeni beğendiysek, localStorage'a ekle
+                    likedPhotosInStorage.push(currentPhoto._id);
+                    likeBtn.classList.add('liked');
+                }
+                localStorage.setItem('likedPhotos', JSON.stringify(likedPhotosInStorage));
 
             } catch (error) {
-                // 5. BİR HATA OLURSA KULLANICIYI BİLGİLENDİR
                 alert('Beğeni sırasında bir hata oluştu: ' + error.message);
             } finally {
-                // 6. İŞLEM BİTTİĞİNDE (BAŞARILI VEYA BAŞARISIZ) KİLİDİ AÇ
                 likeBtn.disabled = false;
             }
         });
+
+        // openModal fonksiyonunu da localStorage'ı kontrol edecek şekilde güncellemeliyiz.
+        function openModal(index) {
+            if (index < 0 || index >= allPhotos.length) return;
+            currentPhotoIndex = index;
+            const photo = allPhotos[index];
+            // ... diğer kodlar (resim, başlık vs.) aynı ...
+            renderComments(photo.comments);
+            
+            likeCount.textContent = photo.likes || 0;
+
+            // Sayfa yenilense bile beğenme durumunu hatırla
+            let likedPhotosInStorage = JSON.parse(localStorage.getItem('likedPhotos')) || [];
+            if (likedPhotosInStorage.includes(photo._id)) {
+                likeBtn.classList.add('liked');
+            } else {
+                likeBtn.classList.remove('liked');
+            }
+            
+            modal.style.display = 'flex';
+        }
         
         addPhotoBtn.addEventListener('click', () => { formContainer.classList.toggle('visible'); });
         closeBtn.addEventListener('click', closeModal);
