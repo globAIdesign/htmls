@@ -51,14 +51,6 @@
         .comment-date { font-size: 11px; color: var(--text-muted); }
         .comment-text { margin-top: 5px; }
         #comment-form { margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border-color); }
-        
-        /* YENİ: Beğeni Butonu Stilleri */
-        .like-section { display: flex; align-items: center; gap: 8px; margin-top: 15px; color: var(--text-muted); }
-        .like-btn { background: none; border: none; cursor: pointer; padding: 0; }
-        .like-btn svg { width: 24px; height: 24px; stroke: var(--text-color); stroke-width: 2; fill: none; transition: all 0.2s ease; }
-        .like-btn.liked svg { fill: var(--primary-color); stroke: var(--primary-color); }
-        .like-count { font-weight: bold; }
-
         .close-button { position: absolute; top: 10px; right: 15px; z-index: 1010; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; }
         .modal-nav { cursor: pointer; position: absolute; top: 50%; transform: translateY(-50%); font-size: 40px; color: rgba(255, 255, 255, 0.7); background-color: rgba(0, 0, 0, 0.3); padding: 0 15px; border-radius: 5px; user-select: none; transition: color 0.3s, background-color 0.3s; z-index: 1005; }
         .modal-nav:hover { color: white; background-color: rgba(0, 0, 0, 0.5); }
@@ -103,13 +95,7 @@
                     <h1 id="modalTitle"></h1>
                     <p id="modalDesc"></p>
                     <div id="modalTags" class="modal-tags"></div>
-                    <!-- YENİ: Beğeni Bölümü Eklendi -->
-                    <div class="like-section">
-                        <button class="like-btn" id="like-btn">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
-                        <span class="like-count" id="like-count">0</span>
-                    </div>
+                    <!-- Beğeni bölümü buradan tamamen kaldırıldı -->
                 </div>
                 <div id="comments-section" class="comments-section"></div>
                 <form id="comment-form">
@@ -131,8 +117,7 @@
         const modalTags = document.getElementById('modalTags');
         const commentsSection = document.getElementById('comments-section');
         const commentForm = document.getElementById('comment-form');
-        const likeBtn = document.getElementById('like-btn');
-        const likeCount = document.getElementById('like-count');
+        // Like butonu ve sayacı ile ilgili seçiciler kaldırıldı
         const closeBtn = document.getElementById('close-btn');
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
@@ -147,33 +132,12 @@
         let currentPhotoIndex = 0;
 
         // --- FONKSİYONLAR ---
-        function renderGallery(photosToRender) {
-            galeriElementi.innerHTML = '';
-            photosToRender.forEach((photo) => {
-                const originalIndex = allPhotos.findIndex(p => p._id === photo._id);
-                createGalleryItem(photo, originalIndex);
-            });
-        }
-
-        function renderComments(comments = []) {
-            commentsSection.innerHTML = '';
-            if (comments.length === 0) {
-                commentsSection.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Henüz yorum yapılmamış.</p>';
-                return;
-            }
-            comments.slice().reverse().forEach(comment => {
-                const commentElement = document.createElement('div');
-                commentElement.className = 'comment';
-                const commentDate = new Date(comment.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                commentElement.innerHTML = `<div><span class="comment-author">${comment.username}</span><span class="comment-date">${commentDate}</span></div><p class="comment-text">${comment.text}</p>`;
-                commentsSection.appendChild(commentElement);
-            });
-        }
         
         function openModal(index) {
             if (index < 0 || index >= allPhotos.length) return;
             currentPhotoIndex = index;
             const photo = allPhotos[index];
+
             const highQualityUrl = photo.path.replace('/upload/', '/upload/q_auto,f_auto,w_1600/');
             modalImg.src = highQualityUrl;
             modalTitle.textContent = photo.title;
@@ -191,179 +155,29 @@
             
             renderComments(photo.comments);
             
-            likeCount.textContent = photo.likes || 0;
-            // Not: Beğenilip beğenilmediği backend'den gelen bilgiye göre değil,
-            // kullanıcının o anki oturumunda ne yaptığına göre belirlenecek.
-            // Bu, IP kontrolüyle birleşince iyi çalışır.
-            // Daha güvenli bir yöntem için backend'den liked:true/false bilgisi de istenebilir.
-            likeBtn.classList.remove('liked'); // Şimdilik varsayılan olarak beğenilmemiş göster
+            // Beğeni ile ilgili tüm kodlar kaldırıldı
             
             modal.style.display = 'flex';
         }
 
+        // Diğer tüm fonksiyonlar ve olay dinleyicileri olduğu gibi kalıyor,
+        // sadece beğeni ile ilgili olanlar temizlendi.
+        function renderGallery(photosToRender) { galeriElementi.innerHTML = ''; photosToRender.forEach((photo) => { const originalIndex = allPhotos.findIndex(p => p._id === photo._id); createGalleryItem(photo, originalIndex); }); }
+        function renderComments(comments = []) { commentsSection.innerHTML = ''; if (comments.length === 0) { commentsSection.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Henüz yorum yapılmamış.</p>'; return; } comments.slice().reverse().forEach(comment => { const commentElement = document.createElement('div'); commentElement.className = 'comment'; const commentDate = new Date(comment.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); commentElement.innerHTML = `<div><span class="comment-author">${comment.username}</span><span class="comment-date">${commentDate}</span></div><p class="comment-text">${comment.text}</p>`; commentsSection.appendChild(commentElement); }); }
         function closeModal() { modal.style.display = 'none'; }
         function showNextPhoto() { openModal((currentPhotoIndex + 1) % allPhotos.length); }
         function showPrevPhoto() { openModal((currentPhotoIndex - 1 + allPhotos.length) % allPhotos.length); }
-        function createGalleryItem(foto, index) {
-            const galleryItem = document.createElement('div');
-            galleryItem.classList.add('gallery-item');
-            const optimizedUrl = foto.path.replace('/upload/', '/upload/q_auto,f_auto,c_fill,w_500,h_500/');
-            galleryItem.innerHTML = `<img src="${optimizedUrl}" alt="${foto.title}" loading="lazy">`;
-            galleryItem.addEventListener('click', () => openModal(index));
-            galeriElementi.appendChild(galleryItem);
-        }
-        
-        // --- OLAY DİNLEYİCİLERİ ---
-        window.addEventListener('load', () => {
-            fetch(`${API_URL}/photos`)
-                .then(response => { if (!response.ok) throw new Error('Sunucu yanıt vermiyor.'); return response.json(); })
-                .then(photos => { allPhotos = photos; renderGallery(allPhotos); })
-                .catch(error => { console.error('Galeri yüklenirken hata:', error); galeriElementi.innerHTML = `<p style="color: red; grid-column: 1 / -1;">Galeri yüklenemedi.</p>`; });
-        });
-
-        searchBox.addEventListener('input', (event) => {
-            const searchTerm = event.target.value.toLowerCase();
-            const filteredPhotos = allPhotos.filter(photo => {
-                const titleMatch = photo.title.toLowerCase().includes(searchTerm);
-                const descriptionMatch = photo.description.toLowerCase().includes(searchTerm);
-                const tagsMatch = photo.tags && photo.tags.some(tag => tag.toLowerCase().includes(searchTerm));
-                return titleMatch || descriptionMatch || tagsMatch;
-            });
-            renderGallery(filteredPhotos);
-        });
-
-        uploadForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const formData = new FormData(uploadForm);
-            const submitButton = uploadForm.querySelector('button');
-            submitButton.textContent = 'Yükleniyor...';
-            submitButton.disabled = true;
-            try {
-                const response = await fetch(`${API_URL}/upload`, { method: 'POST', body: formData });
-                if (response.ok) { window.location.reload(); } else { throw new Error(await response.text()); }
-            } catch (error) { alert('Fotoğraf yüklenemedi: ' + error.message); } finally { submitButton.textContent = 'Sisteme Yükle'; submitButton.disabled = false; }
-        });
-
-        commentForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const currentPhoto = allPhotos[currentPhotoIndex];
-            if (!currentPhoto) return;
-            const username = commentForm.elements.username.value;
-            const text = commentForm.elements.text.value;
-            const submitButton = commentForm.querySelector('button');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Gönderiliyor...';
-
-            try {
-                const response = await fetch(`${API_URL}/photos/${currentPhoto._id}/comments`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, text })
-                });
-                if (!response.ok) { throw new Error(await response.text()); }
-                const updatedPhoto = await response.json();
-                allPhotos[currentPhotoIndex] = updatedPhoto;
-                renderComments(updatedPhoto.comments);
-                commentForm.reset();
-            } catch (error) {
-                alert('Yorum eklenirken hata: ' + error.message);
-            } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Yorumu Gönder';
-            }
-        });
-
-      likeBtn.addEventListener('click', async () => {
-            const currentPhoto = allPhotos[currentPhotoIndex];
-            if (!currentPhoto || likeBtn.disabled) return;
-
-            likeBtn.disabled = true;
-
-            try {
-                const response = await fetch(`${API_URL}/photos/${currentPhoto._id}/like`, {
-                    method: 'POST'
-                });
-
-                if (!response.ok) {
-                    throw new Error(await response.text());
-                }
-
-                const updatedPhoto = await response.json();
-                allPhotos[currentPhotoIndex] = updatedPhoto;
-                likeCount.textContent = updatedPhoto.likes;
-
-                // Beğeni durumunu localStorage'a kaydet/sil
-                let likedPhotosInStorage = JSON.parse(localStorage.getItem('likedPhotos')) || [];
-                if (likedPhotosInStorage.includes(currentPhoto._id)) {
-                    // Beğeniyi geri aldıysak, localStorage'dan sil
-                    likedPhotosInStorage = likedPhotosInStorage.filter(id => id !== currentPhoto._id);
-                    likeBtn.classList.remove('liked');
-                } else {
-                    // Yeni beğendiysek, localStorage'a ekle
-                    likedPhotosInStorage.push(currentPhoto._id);
-                    likeBtn.classList.add('liked');
-                }
-                localStorage.setItem('likedPhotos', JSON.stringify(likedPhotosInStorage));
-
-            } catch (error) {
-                alert('Beğeni sırasında bir hata oluştu: ' + error.message);
-            } finally {
-                likeBtn.disabled = false;
-            }
-        });
-
-        // openModal fonksiyonunu da localStorage'ı kontrol edecek şekilde güncellemeliyiz.
-         function openModal(index) {
-            if (index < 0 || index >= allPhotos.length) return;
-            
-            currentPhotoIndex = index;
-            const photo = allPhotos[index];
-
-            // --- EKSİK OLAN VE GERİ EKLEDİĞİMİZ ÖNEMLİ SATIRLAR ---
-            const highQualityUrl = photo.path.replace('/upload/', '/upload/q_auto,f_auto,w_1600/');
-            modalImg.src = highQualityUrl;
-            modalTitle.textContent = photo.title;
-            modalDesc.textContent = photo.description;
-
-            modalTags.innerHTML = '';
-            if (photo.tags && photo.tags.length > 0) {
-                photo.tags.forEach(tag => {
-                    const tagElement = document.createElement('span');
-                    tagElement.className = 'tag';
-                    tagElement.textContent = tag;
-                    modalTags.appendChild(tagElement);
-                });
-            }
-            // --------------------------------------------------------
-
-            // Yorumları ve beğenileri güncelleyen kodlar zaten doğruydu
-            renderComments(photo.comments);
-            
-            likeCount.textContent = photo.likes || 0;
-
-            let likedPhotosInStorage = JSON.parse(localStorage.getItem('likedPhotos')) || [];
-            if (likedPhotosInStorage.includes(photo._id)) {
-                likeBtn.classList.add('liked');
-            } else {
-                likeBtn.classList.remove('liked');
-            }
-            
-            modal.style.display = 'flex';
-        }
-        
+        function createGalleryItem(foto, index) { const galleryItem = document.createElement('div'); galleryItem.classList.add('gallery-item'); const optimizedUrl = foto.path.replace('/upload/', '/upload/q_auto,f_auto,c_fill,w_500,h_500/'); galleryItem.innerHTML = `<img src="${optimizedUrl}" alt="${foto.title}" loading="lazy">`; galleryItem.addEventListener('click', () => openModal(index)); galeriElementi.appendChild(galleryItem); }
+        window.addEventListener('load', () => { fetch(`${API_URL}/photos`).then(response => { if (!response.ok) throw new Error('Sunucu yanıt vermiyor.'); return response.json(); }).then(photos => { allPhotos = photos; renderGallery(allPhotos); }).catch(error => { console.error('Galeri yüklenirken hata:', error); galeriElementi.innerHTML = `<p style="color: red; grid-column: 1 / -1;">Galeri yüklenemedi.</p>`; }); });
+        searchBox.addEventListener('input', (event) => { const searchTerm = event.target.value.toLowerCase(); const filteredPhotos = allPhotos.filter(photo => { const titleMatch = photo.title.toLowerCase().includes(searchTerm); const descriptionMatch = photo.description.toLowerCase().includes(searchTerm); const tagsMatch = photo.tags && photo.tags.some(tag => tag.toLowerCase().includes(searchTerm)); return titleMatch || descriptionMatch || tagsMatch; }); renderGallery(filteredPhotos); });
+        uploadForm.addEventListener('submit', async (event) => { event.preventDefault(); const formData = new FormData(uploadForm); const submitButton = uploadForm.querySelector('button'); submitButton.textContent = 'Yükleniyor...'; submitButton.disabled = true; try { const response = await fetch(`${API_URL}/upload`, { method: 'POST', body: formData }); if (response.ok) { window.location.reload(); } else { throw new Error(await response.text()); } } catch (error) { alert('Fotoğraf yüklenemedi: ' + error.message); } finally { submitButton.textContent = 'Sisteme Yükle'; submitButton.disabled = false; } });
+        commentForm.addEventListener('submit', async (event) => { event.preventDefault(); const currentPhoto = allPhotos[currentPhotoIndex]; if (!currentPhoto) return; const username = commentForm.elements.username.value; const text = commentForm.elements.text.value; const submitButton = commentForm.querySelector('button'); submitButton.disabled = true; submitButton.textContent = 'Gönderiliyor...'; try { const response = await fetch(`${API_URL}/photos/${currentPhoto._id}/comments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, text }) }); if (!response.ok) { throw new Error(await response.text()); } const updatedPhoto = await response.json(); allPhotos[currentPhotoIndex] = updatedPhoto; renderComments(updatedPhoto.comments); commentForm.reset(); } catch (error) { alert('Yorum eklenirken hata: ' + error.message); } finally { submitButton.disabled = false; submitButton.textContent = 'Yorumu Gönder'; } });
         addPhotoBtn.addEventListener('click', () => { formContainer.classList.toggle('visible'); });
         closeBtn.addEventListener('click', closeModal);
         nextBtn.addEventListener('click', showNextPhoto);
         prevBtn.addEventListener('click', showPrevPhoto);
         modal.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
-        document.addEventListener('keydown', (e) => {
-            if (modal.style.display === 'flex') {
-                if (e.key === 'ArrowRight') showNextPhoto();
-                if (e.key === 'ArrowLeft') showPrevPhoto();
-                if (e.key === 'Escape') closeModal();
-            }
-        });
+        document.addEventListener('keydown', (e) => { if (modal.style.display === 'flex') { if (e.key === 'ArrowRight') showNextPhoto(); if (e.key === 'ArrowLeft') showPrevPhoto(); if (e.key === 'Escape') closeModal(); } });
     </script>
-
 </body>
 </html>

@@ -13,15 +13,12 @@ const PORT = process.env.PORT || 3000;
 
 // CORS Middleware'i
 const corsOptions = {
-  origin: '*', // Herhangi bir kaynaktan gelen isteğe izin ver
+  origin: '*',
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   preflightContinue: false,
   optionsSuccessStatus: 204
 };
 app.use(cors(corsOptions));
-
-// Proxy'lere güvenerek doğru IP adresini almayı sağla
-app.set('trust proxy', 1);
 
 // Cloudinary Yapılandırması
 cloudinary.config({
@@ -46,7 +43,7 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("MongoDB'ye başarıyla bağlanıldı."))
     .catch(err => console.error('MongoDB bağlantı hatası:', err));
 
-// --- Veritabanı Modelleri Güncellendi ---
+// --- Veritabanı Modelleri ---
 const CommentSchema = new mongoose.Schema({
     username: { type: String, required: true },
     text: { type: String, required: true },
@@ -60,9 +57,6 @@ const PhotoSchema = new mongoose.Schema({
     public_id: String,
     tags: [String],
     comments: [CommentSchema],
-    // YENİ ALANLAR EKLENDİ
-    likes: { type: Number, default: 0 },
-    likedByIPs: [String],
     createdAt: { type: Date, default: Date.now }
 });
 const Photo = mongoose.model('Photo', PhotoSchema);
@@ -78,16 +72,12 @@ app.get('/', (req, res) => {
 
 app.post('/upload', upload.single('image'), async (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).send("Lütfen bir resim dosyası seçin.");
-        }
+        if (!req.file) return res.status(400).send("Lütfen bir resim dosyası seçin.");
         const tagsString = req.body.tags || '';
         const tagsArray = tagsString.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
         const newPhoto = new Photo({
-            title: req.body.title,
-            description: req.body.description,
-            path: req.file.path,
-            public_id: req.file.filename,
+            title: req.body.title, description: req.body.description,
+            path: req.file.path, public_id: req.file.filename,
             tags: tagsArray
         });
         await newPhoto.save();
@@ -110,48 +100,14 @@ app.get('/photos', async (req, res) => {
 app.post('/photos/:id/comments', async (req, res) => {
     try {
         const photo = await Photo.findById(req.params.id);
-        if (!photo) {
-            return res.status(404).send('Fotoğraf bulunamadı.');
-        }
-        const newComment = {
-            username: req.body.username,
-            text: req.body.text
-        };
+        if (!photo) return res.status(404).send('Fotoğraf bulunamadı.');
+        const newComment = { username: req.body.username, text: req.body.text };
         photo.comments.push(newComment);
         await photo.save();
         res.status(201).json(photo);
     } catch (error) {
         console.error("Yorum eklenirken hata:", error);
         res.status(500).send('Yorum eklenirken bir sunucu hatası oluştu.');
-    }
-});
-
-// --- YENİ ROTA: Bir fotoğrafı beğenmek / beğeniyi geri almak için ---
-app.post('/photos/:id/like', async (req, res) => {
-    try {
-        const photo = await Photo.findById(req.params.id);
-        if (!photo) {
-            return res.status(404).send('Fotoğraf bulunamadı.');
-        }
-
-        const userIP = req.ip; // Render'dan gelen gerçek kullanıcı IP'si
-        const ipIndex = photo.likedByIPs.indexOf(userIP);
-
-        if (ipIndex > -1) {
-            // IP adresi listede varsa, beğeniyi geri al
-            photo.likes -= 1;
-            photo.likedByIPs.splice(ipIndex, 1);
-        } else {
-            // IP adresi listede yoksa, beğen
-            photo.likes += 1;
-            photo.likedByIPs.push(userIP);
-        }
-
-        await photo.save();
-        res.status(200).json(photo);
-    } catch (error) {
-        console.error("Beğeni sırasında hata:", error);
-        res.status(500).send('Beğeni sırasında bir sunucu hatası oluştu.');
     }
 });
 
