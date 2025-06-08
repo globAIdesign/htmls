@@ -313,16 +313,34 @@
         });
 
         // openModal fonksiyonunu da localStorage'ı kontrol edecek şekilde güncellemeliyiz.
-        function openModal(index) {
+         function openModal(index) {
             if (index < 0 || index >= allPhotos.length) return;
+            
             currentPhotoIndex = index;
             const photo = allPhotos[index];
-            // ... diğer kodlar (resim, başlık vs.) aynı ...
+
+            // --- EKSİK OLAN VE GERİ EKLEDİĞİMİZ ÖNEMLİ SATIRLAR ---
+            const highQualityUrl = photo.path.replace('/upload/', '/upload/q_auto,f_auto,w_1600/');
+            modalImg.src = highQualityUrl;
+            modalTitle.textContent = photo.title;
+            modalDesc.textContent = photo.description;
+
+            modalTags.innerHTML = '';
+            if (photo.tags && photo.tags.length > 0) {
+                photo.tags.forEach(tag => {
+                    const tagElement = document.createElement('span');
+                    tagElement.className = 'tag';
+                    tagElement.textContent = tag;
+                    modalTags.appendChild(tagElement);
+                });
+            }
+            // --------------------------------------------------------
+
+            // Yorumları ve beğenileri güncelleyen kodlar zaten doğruydu
             renderComments(photo.comments);
             
             likeCount.textContent = photo.likes || 0;
 
-            // Sayfa yenilense bile beğenme durumunu hatırla
             let likedPhotosInStorage = JSON.parse(localStorage.getItem('likedPhotos')) || [];
             if (likedPhotosInStorage.includes(photo._id)) {
                 likeBtn.classList.add('liked');
