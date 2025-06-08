@@ -38,14 +38,27 @@ mongoose.connect(process.env.MONGO_URI)
     .catch(err => console.error('MongoDB bağlantı hatası:', err));
 
 // --- 1. DEĞİŞİKLİK: Veritabanı Modeli (Şema) Güncellendi ---
+// server.js içinde
+
+// YENİ: Yorumlar için ayrı bir şema oluşturuyoruz
+const CommentSchema = new mongoose.Schema({
+    username: { type: String, required: true },
+    text: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
+});
+
+// PhotoSchema'yı, CommentSchema'yı içerecek şekilde güncelliyoruz
 const PhotoSchema = new mongoose.Schema({
     title: String,
     description: String,
     path: String,
     public_id: String,
-    tags: [String], // Etiketleri bir metin dizisi olarak sakla
+    tags: [String],
+    // YENİ: Yorumları doğrudan fotoğraf belgesinin içinde bir dizi olarak sakla
+    comments: [CommentSchema], 
     createdAt: { type: Date, default: Date.now }
 });
+
 const Photo = mongoose.model('Photo', PhotoSchema);
 
 // Middleware Ayarları
@@ -94,6 +107,34 @@ app.get('/photos', async (req, res) => {
         res.json(photos);
     } catch (error) {
         res.status(500).send('Fotoğraflar getirilirken hata oluştu.');
+    }
+});
+// server.js içinde
+
+// ... app.get('/photos', ...) rotasından sonra ...
+
+// --- YENİ ROTA: Bir fotoğrafa yorum eklemek için ---
+app.post('/photos/:id/comments', async (req, res) => {
+    try {
+        const photo = await Photo.findById(req.params.id);
+        if (!photo) {
+            return res.status(404).send('Fotoğraf bulunamadı.');
+        }
+
+        const newComment = {
+            username: req.body.username,
+            text: req.body.text
+        };
+
+        photo.comments.push(newComment); // Yeni yorumu fotoğrafın yorumlar dizisine ekle
+        await photo.save(); // Fotoğrafı güncellenmiş haliyle kaydet
+
+        // Başarı yanıtı olarak güncellenmiş fotoğrafı (veya sadece yeni yorumu) döndür
+        res.status(201).json(photo); 
+
+    } catch (error) {
+        console.error("Yorum eklenirken hata:", error);
+        res.status(500).send('Yorum eklenirken bir sunucu hatası oluştu.');
     }
 });
 
