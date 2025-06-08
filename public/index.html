@@ -273,26 +273,58 @@
             }
         });
 
-        likeBtn.addEventListener('click', async () => {
+       likeBtn.addEventListener('click', async () => {
             const currentPhoto = allPhotos[currentPhotoIndex];
-            if (!currentPhoto) return;
-            likeBtn.disabled = true; // Tekrar tıklamayı önle
+            if (!currentPhoto || likeBtn.disabled) return; // Buton zaten devre dışıysa hiçbir şey yapma
 
+            // 1. Butonu hemen devre dışı bırakarak çift tıklamayı engelle
+            likeBtn.disabled = true;
+
+            // 2. "İyimser" güncelleme: Sunucuyu beklemeden arayüzü anında değiştir
+            const wasLiked = likeBtn.classList.contains('liked');
+            const originalLikes = parseInt(likeCount.textContent);
+            let newLikes;
+
+            if (wasLiked) {
+                // Eğer beğenilmişse, beğeniyi geri alıyormuş gibi göster
+                likeBtn.classList.remove('liked');
+                newLikes = originalLikes - 1;
+            } else {
+                // Eğer beğenilmemişse, beğeniyormuş gibi göster
+                likeBtn.classList.add('liked');
+                newLikes = originalLikes + 1;
+            }
+            likeCount.textContent = newLikes;
+
+            // 3. Arka planda sunucuya isteği gönder
             try {
                 const response = await fetch(`${API_URL}/photos/${currentPhoto._id}/like`, {
                     method: 'POST'
                 });
-                if (!response.ok) { throw new Error(await response.text()); }
-                const updatedPhoto = await response.json();
-                allPhotos[currentPhotoIndex] = updatedPhoto;
-                likeCount.textContent = updatedPhoto.likes;
-                // Beğeni durumuna göre butonu güncelle
-                likeBtn.classList.toggle('liked');
+
+                // Sunucudan gelen cevapla veriyi senkronize et (genellikle aynı olur)
+                if (response.ok) {
+                    const updatedPhoto = await response.json();
+                    allPhotos[currentPhotoIndex] = updatedPhoto; // Yerel veriyi güncelle
+                    likeCount.textContent = updatedPhoto.likes; // En doğru sayıyı sunucudan al
+                } else {
+                    // Eğer sunucu hata verirse, yaptığımız değişikliği geri al
+                    throw new Error(await response.text());
+                }
 
             } catch (error) {
+                // 4. HATA DURUMU: Yaptığımız iyimser güncellemeyi geri al
                 alert('Beğeni sırasında bir hata oluştu: ' + error.message);
+                // Arayüzü eski haline döndür
+                likeCount.textContent = originalLikes;
+                if (wasLiked) {
+                    likeBtn.classList.add('liked');
+                } else {
+                    likeBtn.classList.remove('liked');
+                }
             } finally {
-                likeBtn.disabled = false; // İşlem bitince butonu tekrar aktif et
+                // 5. Her durumda (başarılı veya başarısız) butonu tekrar tıklanabilir yap
+                likeBtn.disabled = false;
             }
         });
         
