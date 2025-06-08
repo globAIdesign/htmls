@@ -3,133 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Sayfa Başlığı Güncellendi -->
     <title>Bürküt Ata | İHA Sistemleri Galerisi</title>
-    
-    <!-- YENİ: Google Fonts'tan modern bir font eklendi -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
-    <!-- TAMAMEN YENİLENMİŞ STİLLER -->
     <style>
         :root {
-            --primary-color: #d10000; /* Teknolojik bir mavi */
+            --primary-color: #d10000;
             --dark-bg: #121212;
             --light-bg: #1e1e1e;
             --text-color: #e0e0e0;
             --text-muted: #888;
             --border-color: #333;
         }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--dark-bg);
-            color: var(--text-color);
-            margin: 0;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* YENİ: Header Alanı */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .gallery-title {
-            font-family: 'Orbitron', sans-serif; /* Teknolojik, fütüristik font */
-            font-size: 36px;
-            margin: 0;
-            color: var(--primary-color);
-            letter-spacing: 2px;
-        }
-
-        /* YENİ: Fotoğraf Ekle Butonu */
-        .add-photo-btn {
-            background-color: var(--primary-color);
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-        .add-photo-btn:hover {
-            background-color: #d10000;
-            transform: translateY(-2px);
-        }
-
-        /* YENİ: Formun animasyonlu açılması için stiller */
-        .form-container {
-            background-color: var(--light-bg);
-            border-radius: 8px;
-            padding: 30px;
-            margin: 20px auto;
-            max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            /* Başlangıçta gizli ve animasyon için ayarlar */
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.7s ease-in-out, padding 0.7s ease-in-out;
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-        .form-container.visible {
-            max-height: 500px; /* Açıldığında alacağı maksimum yükseklik */
-            padding-top: 30px;
-            padding-bottom: 30px;
-        }
-        .form-container h2 {
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-family: 'Orbitron', sans-serif;
-        }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--dark-bg); color: var(--text-color); margin: 0; line-height: 1.6; }
+        .container { max-width: 1800px; margin: 0 auto; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--border-color); }
+        .gallery-title { font-family: 'Orbitron', sans-serif; font-size: 36px; margin: 0; color: var(--primary-color); letter-spacing: 2px; }
+        .add-photo-btn { background-color: var(--primary-color); color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background-color 0.3s, transform 0.2s; }
+        .add-photo-btn:hover { background-color: #a10000; transform: translateY(-2px); }
+        .form-container { background-color: var(--light-bg); border-radius: 8px; padding: 30px; margin: 20px auto; max-width: 500px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); max-height: 0; overflow: hidden; transition: max-height 0.7s ease-in-out, padding 0.7s ease-in-out; padding-top: 0; padding-bottom: 0; }
+        .form-container.visible { max-height: 500px; padding-top: 30px; padding-bottom: 30px; }
+        .form-container h2 { text-align: center; margin-top: 0; margin-bottom: 20px; font-family: 'Orbitron', sans-serif; }
         form { display: flex; flex-direction: column; gap: 15px; }
-        form input, form textarea, form button {
-            font-size: 16px;
-            padding: 12px;
-            border-radius: 5px;
-            border: 1px solid var(--border-color);
-            background-color: #252525;
-            color: var(--text-color);
-        }
+        form input, form textarea, form button { font-size: 16px; padding: 12px; border-radius: 5px; border: 1px solid var(--border-color); background-color: #252525; color: var(--text-color); }
         form input::placeholder, form textarea::placeholder { color: var(--text-muted); }
         form button { background-color: var(--primary-color); font-weight: bold; cursor: pointer; transition: background-color 0.3s; }
-        form button:hover { background-color: #d10000; }
+        form button:hover { background-color: #a10000; }
         form button:disabled { background-color: #555; cursor: not-allowed; }
-
-        /* Galeri stilleri iyileştirildi */
-        .gallery-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .gallery-container {
+            display: flex; /* Flexbox'a geri dönüyoruz, daha iyi kontrol için */
+            flex-wrap: wrap; /* Sığmazsa alt satıra at */
+            gap: 15px; /* Kutucuklar arası boşluk */
+            justify-content: center; /* Ortalamak için */
+        }
         .gallery-item {
+            /* Her bir kutunun genişliğini hesapla:
+               %100 genişliğin 5'te 1'i, eksi aradaki boşluklar */
+            flex-basis: calc(20% - 15px);
+            flex-grow: 1; /* Boşlukları doldurmak için esnesin */
+            max-width: calc(20% - 15px); /* Genişliği sabitle */
+            
             cursor: pointer;
-            aspect-ratio: 1 / 1; /* Kare oranını koru */
+            aspect-ratio: 1 / 1;
             overflow: hidden;
             border-radius: 8px;
             position: relative;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
             transition: transform 0.3s ease;
         }
-        .gallery-item:hover {
-            transform: scale(1.05);
-            z-index: 10;
-        }
+        .gallery-item:hover { transform: scale(1.05); z-index: 10; }
         .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
         .gallery-item:hover img { opacity: 0.8; }
         
-        /* Modal stilleri iyileştirildi */
-        .modal { display: none; /* ... aynı kaldı ... */ }
+        /* --- CSS DÜZELTMESİ: En Basit ve Garanti Yöntem --- */
+        .modal {
+            display: none; /* 1. Başlangıçta tamamen gizli */
+            position: fixed; /* 2. Sayfanın üzerinde yüzen bir katman yap */
+            z-index: 1000; /* 3. Diğer her şeyin üzerinde olmasını garantile */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            /* 4. İçindeki içeriği ortalamak için flexbox kullan */
+            align-items: center;
+            justify-content: center;
+        }
+
         .modal-content {
             display: flex;
             flex-direction: column;
@@ -141,57 +83,20 @@
             max-height: 90vh;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
         }
-        .modal-image {
-            flex-grow: 1; /* Esnek büyüme */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
-        }
-        .modal-image img {
-            max-width: 100%;
-            max-height: 70vh;
-            border-radius: 4px;
-        }
-        .modal-description {
-            background-color: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 5px;
-            max-height: 15vh;
-            overflow-y: auto;
-        }
+        .modal-image { flex-grow: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+        .modal-image img { max-width: 100%; max-height: 70vh; border-radius: 4px; }
+        .modal-description { background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 5px; max-height: 15vh; overflow-y: auto; }
         .modal-description h1 { font-size: 24px; margin: 0 0 10px 0; color: var(--primary-color); }
         .modal-description p { margin: 0; }
-        
-        .close-button { z-index: 1010; /* ... aynı kaldı ... */ }
-
-        /* YENİ: Modal Navigasyon Okları */
-        .modal-nav {
-            cursor: pointer;
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 40px;
-            color: rgba(255, 255, 255, 0.7);
-            background-color: rgba(0, 0, 0, 0.3);
-            padding: 0 15px;
-            border-radius: 5px;
-            user-select: none;
-            transition: color 0.3s, background-color 0.3s;
-            z-index: 1005;
-        }
-        .modal-nav:hover {
-            color: white;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
+        .close-button { position: absolute; top: 20px; right: 35px; z-index: 1010; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; }
+        .modal-nav { cursor: pointer; position: absolute; top: 50%; transform: translateY(-50%); font-size: 40px; color: rgba(255, 255, 255, 0.7); background-color: rgba(0, 0, 0, 0.3); padding: 0 15px; border-radius: 5px; user-select: none; transition: color 0.3s, background-color 0.3s; z-index: 1005; }
+        .modal-nav:hover { color: white; background-color: rgba(0, 0, 0, 0.5); }
         .prev { left: 15px; }
         .next { right: 15px; }
-
     </style>
 </head>
 <body>
 
-    <!-- YENİLENMİŞ HTML YAPISI -->
     <header class="header">
         <h1 class="gallery-title">BÜRKÜT ATA</h1>
         <button class="add-photo-btn">Fotoğraf Ekle +</button>
@@ -200,26 +105,20 @@
     <div class="container">
         <div class="form-container">
             <h2>Yeni İHA Görüntüsü Yükle</h2>
-            <form> <!-- action, method gibi özellikler JS ile yönetildiği için kaldırıldı -->
+            <form>
                 <input type="text" name="title" placeholder="Görüntü Başlığı / Model Adı" required>
                 <textarea name="description" placeholder="Açıklama / Teknik Detaylar" rows="3" required></textarea>
                 <input type="file" name="image" accept="image/*" required>
                 <button type="submit">Sisteme Yükle</button>
             </form>
         </div>
-
-        <div id="gallery-container" class="gallery-container">
-            <!-- Galeri buraya dinamik olarak yüklenecek -->
-        </div>
+        <div id="gallery-container" class="gallery-container"></div>
     </div>
 
-    <!-- YENİLENMİŞ MODAL YAPISI -->
     <div id="myModal" class="modal">
         <span class="close-button" id="close-btn">×</span>
-        <!-- YENİ: Navigasyon Okları Eklendi -->
         <span class="modal-nav prev" id="prev-btn">‹</span>
         <span class="modal-nav next" id="next-btn">›</span>
-        
         <div class="modal-content">
             <div class="modal-image">
                 <img id="modalImg" src="" alt="Büyük fotoğraf">
@@ -231,9 +130,7 @@
         </div>
     </div>
 
-    <!-- TAMAMEN YENİLENMİŞ VE GELİŞTİRİLMİŞ SCRIPT -->
     <script>
-        // DOM Elementlerini Seçme
         const galeriElementi = document.getElementById('gallery-container');
         const modal = document.getElementById('myModal');
         const modalImg = document.getElementById('modalImg');
@@ -246,62 +143,46 @@
         const formContainer = document.querySelector('.form-container');
         const uploadForm = document.querySelector('form');
 
-        // Global Değişkenler
-        const API_URL = 'https://html-vq8m.onrender.com'; // Kendi Render URL'niz
-        let allPhotos = []; // Sunucudan gelen tüm fotoğrafları saklayacak dizi
-        let currentPhotoIndex = 0; // Modal'da açık olan fotoğrafın indeksi
+        const API_URL = 'https://html-vq8m.onrender.com';
+        let allPhotos = [];
+        let currentPhotoIndex = 0;
 
-        // --- FONKSİYONLAR ---
-
-        // Modal'ı belirli bir fotoğrafla açan fonksiyon
+        /* --- JAVASCRIPT DÜZELTMESİ: En Basit Yöntem --- */
+        // Sadece style.display özelliğini değiştiriyoruz. Class ekleme/çıkarma yok.
         function openModal(index) {
             if (index < 0 || index >= allPhotos.length) return;
-            
             currentPhotoIndex = index;
             const photo = allPhotos[index];
-            
-            // Büyük resmi gösterirken daha yüksek kaliteli versiyonunu isteyelim
             const highQualityUrl = photo.path.replace('/upload/', '/upload/q_auto,f_auto,w_1600/');
             modalImg.src = highQualityUrl;
-            
             modalTitle.textContent = photo.title;
             modalDesc.textContent = photo.description;
-            modal.style.display = 'flex';
+            modal.style.display = 'flex'; // Modalı görünür yap
         }
 
-        // Modal'ı kapatan fonksiyon
         function closeModal() {
-            modal.style.display = 'none';
+            modal.style.display = 'none'; // Modalı gizle
         }
 
-        // Sonraki fotoğrafı gösteren fonksiyon
         function showNextPhoto() {
             const nextIndex = (currentPhotoIndex + 1) % allPhotos.length;
             openModal(nextIndex);
         }
 
-        // Önceki fotoğrafı gösteren fonksiyon
         function showPrevPhoto() {
             const prevIndex = (currentPhotoIndex - 1 + allPhotos.length) % allPhotos.length;
             openModal(prevIndex);
         }
 
-        // Galeriye bir eleman ekleyen fonksiyon
         function createGalleryItem(foto, index) {
             const galleryItem = document.createElement('div');
             galleryItem.classList.add('gallery-item');
-            
-            // Küçük resimler için optimize edilmiş URL kullanıyoruz
             const optimizedUrl = foto.path.replace('/upload/', '/upload/q_auto,f_auto,c_fill,w_500,h_500/');
             galleryItem.innerHTML = `<img src="${optimizedUrl}" alt="${foto.title}" loading="lazy">`;
-
             galleryItem.addEventListener('click', () => openModal(index));
             galeriElementi.appendChild(galleryItem);
         }
         
-        // --- OLAY DİNLEYİCİLERİ (EVENT LISTENERS) ---
-
-        // Sayfa yüklendiğinde fotoğrafları çek
         window.addEventListener('load', () => {
             fetch(`${API_URL}/photos`)
                 .then(response => {
@@ -309,7 +190,7 @@
                     return response.json();
                 })
                 .then(photos => {
-                    allPhotos = photos; // Gelen fotoğrafları global diziye ata
+                    allPhotos = photos;
                     galeriElementi.innerHTML = '';
                     allPhotos.forEach(createGalleryItem);
                 })
@@ -319,14 +200,12 @@
                 });
         });
 
-        // Formu gönderince
         uploadForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const formData = new FormData(uploadForm);
             const submitButton = uploadForm.querySelector('button');
             submitButton.textContent = 'Yükleniyor...';
             submitButton.disabled = true;
-
             try {
                 const response = await fetch(`${API_URL}/upload`, { method: 'POST', body: formData });
                 if (response.ok) {
@@ -344,22 +223,29 @@
             }
         });
         
-        // "Fotoğraf Ekle" butonuna tıklayınca formu göster/gizle
         addPhotoBtn.addEventListener('click', () => {
             formContainer.classList.toggle('visible');
         });
 
-        // Modal butonları
         closeBtn.addEventListener('click', closeModal);
         nextBtn.addEventListener('click', showNextPhoto);
         prevBtn.addEventListener('click', showPrevPhoto);
 
-        // Klavye ile navigasyon
         document.addEventListener('keydown', (e) => {
+            // Sadece modal görünürse klavye olaylarını dinle
             if (modal.style.display === 'flex') {
                 if (e.key === 'ArrowRight') showNextPhoto();
                 if (e.key === 'ArrowLeft') showPrevPhoto();
                 if (e.key === 'Escape') closeModal();
+            }
+        });
+                // ... diğer olay dinleyicilerinin altına ...
+
+        // YENİ: Modal'ın kendisine (arka plana) tıklanınca kapat
+        modal.addEventListener('click', (event) => {
+            // Eğer tıklanan element, modal'ın kendisi ise (içerik değil)
+            if (event.target === modal) {
+                closeModal();
             }
         });
     </script>
