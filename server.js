@@ -63,21 +63,32 @@ app.get('/', (req, res) => {
 });
 
 // a) Fotoğraf yükleme rotası (DEĞİŞTİ)
+// server.js içinde
+
+// a) Fotoğraf yükleme rotası (DEĞİŞTİ)
 app.post('/upload', upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).send("Lütfen bir resim dosyası seçin.");
         }
 
+        // Formdan gelen etiketleri al (örn: "deniz, fatih, melih")
+        const tagsString = req.body.tags || '';
+        // Virgülle ayrılmış metni bir diziye çevir, boşlukları temizle ve boş etiketleri kaldır
+        const tagsArray = tagsString.split(',')
+                                    .map(tag => tag.trim())
+                                    .filter(tag => tag.length > 0);
+
         const newPhoto = new Photo({
             title: req.body.title,
             description: req.body.description,
-            path: req.file.path, // Cloudinary'den gelen güvenli URL
-            public_id: req.file.filename // Cloudinary'den gelen silme ID'si
+            path: req.file.path,
+            public_id: req.file.filename,
+            tags: tagsArray // YENİ: Diziye çevrilmiş etiketleri kaydet
         });
 
         await newPhoto.save();
-        res.status(201).json(newPhoto); // Başarı yanıtı olarak yeni fotoğrafı döndür
+        res.status(201).json(newPhoto);
     } catch (error) {
         console.error("Yükleme sırasında hata:", error);
         res.status(500).send('Fotoğraf yüklenirken bir sunucu hatası oluştu.');
