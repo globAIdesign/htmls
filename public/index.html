@@ -256,6 +256,7 @@
             object-fit: contain;
             position: relative;
             z-index: 2;
+            left: 10px;
             opacity: 0;
             transition: opacity 0.6s 0.1s ease-in-out;
         }
@@ -315,6 +316,7 @@
         .modal-description {
             background-color: rgba(0, 0, 0, 0.2);
             padding: 15px;
+            margin-left: 10px;
             border-radius: 5px;
         }
 
@@ -362,37 +364,20 @@
             background-color: rgba(0, 0, 0, 0.2);
             padding: 10px;
             border-radius: 5px;
+            margin-left: 10px;
             margin-bottom: 10px;
             word-wrap: break-word;
         }
 
-        .delete-comment-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 18px;
-            line-height: 1;
-            padding: 5px;
-            opacity: 0.3;
-            transition: opacity 0.2s, color 0.2s;
-        }
-
-        .comment:hover .delete-comment-btn {
-            opacity: 1;
-        }
-
-        .delete-comment-btn:hover {
-            color: var(--primary-color);
-        }
+        /* KALDIRILDI: Silme butonu stilleri artık gereksiz.
+        .delete-comment-btn { ... }
+        */
 
         .comment-author {
             font-weight: bold;
             color: var(--primary-color);
             margin-right: 8px;
+            margin-left: 7px;
         }
 
         .comment-date {
@@ -401,10 +386,12 @@
         }
 
         .comment-text {
+            margin-left: 7px;
             margin-top: 5px;
         }
 
         #comment-form {
+            margin-left: 9px;
             margin-top: auto;
             padding-top: 15px;
             border-top: 1px solid var(--border-color);
@@ -724,7 +711,6 @@
         let allPhotos = [];
         let currentPhotoIndex = 0;
         
-        // DÜZELTME: Sonar Ping için sadece interval'i tutacak bir değişken yeterli.
         let sonarInterval = null;
 
         function openModal(index) {
@@ -805,14 +791,17 @@
                 commentsSection.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Henüz yorum yapılmamış.</p>';
                 return;
             }
+            // localStorage'dan anahtar okumak artık gereksiz ama zararı yok.
             const myCommentKeys = JSON.parse(localStorage.getItem('myCommentKeys')) || {};
             comments.slice().reverse().forEach(comment => {
                 const commentElement = document.createElement('div');
                 commentElement.className = 'comment';
                 const commentDate = new Date(comment.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                const deleteButtonHTML = myCommentKeys[comment._id] ? `<button class="delete-comment-btn" data-comment-id="${comment._id}">×</button>` : '';
+                
+                // KALDIRILDI: Silme butonu oluşturma mantığı tamamen kaldırıldı.
+                // const deleteButtonHTML = myCommentKeys[comment._id] ? `<button class="delete-comment-btn" data-comment-id="${comment._id}">×</button>` : '';
+                
                 commentElement.innerHTML = `
-                    ${deleteButtonHTML}
                     <div>
                         <span class="comment-author">${comment.username}</span>
                         <span class="comment-date">${commentDate}</span>
@@ -863,7 +852,6 @@
             viewToggleBtn.classList.toggle('active');
 
             if (galeriElementi.classList.contains('map-view')) {
-                // Konumlandırma algoritması
                 const items = Array.from(document.querySelectorAll('.gallery-item'));
                 const containerWidth = galeriElementi.clientWidth;
                 const containerHeight = galeriElementi.clientHeight;
@@ -895,23 +883,20 @@
                     }
                 });
 
-                // DÜZELTME: Periyodik sonar sesini BAŞLAT
                 if (!sonarInterval) {
                     sonarInterval = setInterval(() => {
                         sonarPingSound.currentTime = 0;
                         sonarPingSound.play().catch(e => console.log("Kullanıcı etkileşimi olmadan ses çalınamadı."));
-                    }, 6500); // 8 saniyede bir çal
+                    }, 6500);
                 }
 
             } else {
-                // Izgara görünümüne dönülüyorsa
                 const items = document.querySelectorAll('.gallery-item');
                 items.forEach(item => {
                     item.style.left = '';
                     item.style.top = '';
                 });
 
-                // DÜZELTME: Periyodik sonar sesini DURDUR
                 clearInterval(sonarInterval);
                 sonarInterval = null;
             }
@@ -1011,31 +996,12 @@
 
         closeBtn.addEventListener('click', closeModal);
 
+        // KALDIRILDI: Silme butonuna tıklama olayı dinleyicisi.
+        /*
         commentsSection.addEventListener('click', async (event) => {
-            if (event.target.classList.contains('delete-comment-btn')) {
-                const commentId = event.target.dataset.commentId;
-                const currentPhoto = allPhotos[currentPhotoIndex];
-                const myCommentKeys = JSON.parse(localStorage.getItem('myCommentKeys')) || {};
-                const deleteKey = myCommentKeys[commentId];
-                if (!deleteKey) { alert('Bu yorumu silme yetkiniz yok.'); return; }
-                if (!confirm('Bu yorumu silmek istediğinizden emin misiniz?')) return;
-                try {
-                    const response = await fetch(`${API_URL}/photos/${currentPhoto._id}/comments/${commentId}`, {
-                        method: 'DELETE',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ deleteKey })
-                    });
-                    if (!response.ok) throw new Error(await response.text());
-                    const updatedPhoto = await response.json();
-                    delete myCommentKeys[commentId];
-                    localStorage.setItem('myCommentKeys', JSON.stringify(myCommentKeys));
-                    allPhotos[currentPhotoIndex] = updatedPhoto;
-                    renderComments(updatedPhoto.comments);
-                } catch (error) {
-                    alert('Yorum silinirken bir hata oluştu: ' + error.message);
-                }
-            }
+            ...
         });
+        */
 
         nextBtn.addEventListener('click', showNextPhoto);
         prevBtn.addEventListener('click', showPrevPhoto);
@@ -1054,27 +1020,24 @@
             }
         });
         
-        // DÜZELTME: Fare hareketi olay dinleyicisi kaldırıldı.
-        // Olay dinleyicileri en sona taşındı.
         viewToggleBtn.addEventListener('click', toggleMapView);
         applyHackerEffect(document.querySelector('.gallery-title'));
 
         const loginOverlay = document.getElementById('login-overlay');
-function grantAccess() {
-    if (!loginOverlay) return;
-    const loginBox = loginOverlay.querySelector('.login-box');
-    loginBox.innerHTML = "<p>ERİŞİM İZNİ VERİLDİ.</p><p>BÜRKÜT ATA SİSTEMİ YÜKLENİYOR...</p>";
-    
-    setTimeout(() => {
-        loginOverlay.classList.add('hidden');
-    }, 2000); // 2 saniye sonra siteyi göster
+        function grantAccess() {
+            if (!loginOverlay) return;
+            const loginBox = loginOverlay.querySelector('.login-box');
+            loginBox.innerHTML = "<p>ERİŞİM İZNİ VERİLDİ.</p><p>BÜRKÜT ATA SİSTEMİ YÜKLENİYOR...</p>";
+            
+            setTimeout(() => {
+                loginOverlay.classList.add('hidden');
+            }, 2000);
 
-    // Olay dinleyicisini bir daha çalışmasın diye kaldır
-    window.removeEventListener('keydown', grantAccess);
-    window.removeEventListener('click', grantAccess);
-}
-window.addEventListener('keydown', grantAccess, { once: true });
-window.addEventListener('click', grantAccess, { once: true });
+            window.removeEventListener('keydown', grantAccess);
+            window.removeEventListener('click', grantAccess);
+        }
+        window.addEventListener('keydown', grantAccess, { once: true });
+        window.addEventListener('click', grantAccess, { once: true });
     </script>
 </body>
 

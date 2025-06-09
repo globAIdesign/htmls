@@ -11,14 +11,8 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS Middleware'i
-const corsOptions = {
-  origin: '*',
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-};
-app.use(cors(corsOptions));
+// CORS Middleware'i - Basitleştirilmiş ve daha sağlam.
+app.use(cors());
 
 // Cloudinary Yapılandırması
 cloudinary.config({
@@ -44,13 +38,14 @@ mongoose.connect(process.env.MONGO_URI)
     .catch(err => console.error('MongoDB bağlantı hatası:', err));
 
 // --- Veritabanı Modelleri ---
+
+// Şema basitleştirildi, deleteKey kaldırıldı.
 const CommentSchema = new mongoose.Schema({
     username: { type: String, required: true },
     text: { type: String, required: true },
-    // YENİ: Her yorum için gizli bir silme anahtarı
-    deleteKey: { type: String, required: true, select: false }, // select: false, bu alanın normal sorgularda gelmesini engeller
     createdAt: { type: Date, default: Date.now }
 });
+
 const PhotoSchema = new mongoose.Schema({
     title: String,
     description: String,
@@ -103,56 +98,27 @@ app.post('/photos/:id/comments', async (req, res) => {
         const photo = await Photo.findById(req.params.id);
         if (!photo) return res.status(404).send('Fotoğraf bulunamadı.');
 
+        // Yorum ekleme basitleştirildi, deleteKey almıyor.
         const newComment = {
             username: req.body.username,
-            text: req.body.text,
-            deleteKey: req.body.deleteKey // YENİ: Frontend'den gelen anahtarı al
+            text: req.body.text
         };
 
         photo.comments.push(newComment);
         await photo.save();
         res.status(201).json(photo);
     } catch (error) {
-        // ...
+        console.error("Yorum eklenirken hata:", error);
+        res.status(500).send('Yorum eklerken bir sunucu hatası oluştu.');
     }
 });
 
+// KALDIRILDI: Yorum silme API rotası tamamen kaldırıldı.
+/*
 app.delete('/photos/:photoId/comments/:commentId', async (req, res) => {
-    try {
-        const { photoId, commentId } = req.params;
-        // YENİ: Silme anahtarını isteğin gövdesinden (body) al
-        const { deleteKey } = req.body;
-
-        if (!deleteKey) {
-            return res.status(403).send('Silme anahtarı eksik.'); // 403 Forbidden
-        }
-
-        const photo = await Photo.findOne({ _id: photoId, "comments._id": commentId });
-        if (!photo) return res.status(404).send('Yorum veya fotoğraf bulunamadı.');
-
-        // Yorumu bul ve anahtarı kontrol et
-        const commentToDelete = photo.comments.id(commentId);
-        // Doğrudan anahtarı çekmek için özel bir sorgu gerekiyor
-        const realComment = await Photo.findOne(
-            { "comments._id": commentId },
-            { "comments.$": 1 }
-        ).select("+comments.deleteKey"); // select:false olduğu için zorla getir
-
-        if (!realComment || realComment.comments[0].deleteKey !== deleteKey) {
-            return res.status(403).send('Bu yorumu silme yetkiniz yok.');
-        }
-
-        // Anahtar doğruysa, silme işlemini yap
-        photo.comments.pull(commentId);
-        await photo.save();
-        
-        res.status(200).json(photo);
-
-    } catch (error) {
-        console.error("Yorum silinirken hata:", error);
-        res.status(500).send('Yorum silinirken bir sunucu hatası oluştu.');
-    }
+    ...
 });
+*/
 
 // Sunucuyu Başlatma
 app.listen(PORT, () => {
